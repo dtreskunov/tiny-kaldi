@@ -171,3 +171,15 @@ Model::~Model() {
     delete hcl_fst_;
     delete g_fst_;
 }
+
+float Model::GetSampleFrequency() const {
+    return feature_info_.mfcc_opts.frame_opts.samp_freq;
+}
+
+void Model::SetAllowDownsample(bool val) {
+    feature_info_.mfcc_opts.frame_opts.allow_downsample = val;
+}
+
+void Model::SetAllowUpsample(bool val) {
+    feature_info_.mfcc_opts.frame_opts.allow_upsample = val;
+}
