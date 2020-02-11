@@ -1,41 +1,51 @@
 notifications:
   email: false
 
-services:
-  - docker
-
 git:
   depth: false
 
-os: linux # https://config.travis-ci.com/ref/os
 language: shell # https://config.travis-ci.com/ref/language
 
-env:
-  jobs:
-    - DOCKCROSS_IMAGE=linux-armv6       OPENBLAS_TARGET=ARMV6
-    - DOCKCROSS_IMAGE=linux-armv7       OPENBLAS_TARGET=ARMV7
-    - DOCKCROSS_IMAGE=manylinux2010-x64 OPENBLAS_TARGET=NEHALEM
-
-script:
-  - export HELPER_IMAGE="${DOCKER_REGISTRY}/vosk-api-build:${DOCKCROSS_IMAGE}"
-  - export VERSION="$(git describe --tags --always)"
-  - export DOCKER_BUILD_ARGS="--build-arg DOCKCROSS_IMAGE=$DOCKCROSS_IMAGE --build-arg OPENBLAS_TARGET=$OPENBLAS_TARGET"
-  - date; docker run --rm --privileged multiarch/qemu-user-static:register
-  - date; echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  # stage s1
-  - date; docker pull ${HELPER_IMAGE}.s1 || true
-  - date; docker build --tag ${HELPER_IMAGE}.s1 --target s1 --cache-from ${HELPER_IMAGE}.s1 ${DOCKER_BUILD_ARGS} travis
-  - date; docker push ${HELPER_IMAGE}.s1
-  # stage s2
-  - date; docker pull ${HELPER_IMAGE}.s2 || true
-  - date; docker build --tag ${HELPER_IMAGE}.s2 --target s2 --cache-from ${HELPER_IMAGE}.s1 --cache-from ${HELPER_IMAGE}.s2 ${DOCKER_BUILD_ARGS} travis
-  - date; docker push ${HELPER_IMAGE}.s2
-  # final stage
-  - date; docker pull ${HELPER_IMAGE} || true
-  - date; docker build --tag ${HELPER_IMAGE} --cache-from ${HELPER_IMAGE}.s1 --cache-from ${HELPER_IMAGE}.s2 --cache-from ${HELPER_IMAGE} ${DOCKER_BUILD_ARGS} travis
-  - date; docker push ${HELPER_IMAGE}
-  # build wheels
-  - date; docker run --rm -v "$(pwd):/io" -e "VERSION=$VERSION" ${HELPER_IMAGE} /io/travis/build-wheels.sh
+jobs:
+  include:
+    - &linux_job
+      env: DOCKCROSS_IMAGE=manylinux2010-x64 OPENBLAS_TARGET=NEHALEM
+      os: linux
+      services:
+        - docker
+      script:
+        - export HELPER_IMAGE="${DOCKER_REGISTRY}/vosk-api-build:${DOCKCROSS_IMAGE}"
+        - export VERSION="$(git describe --tags --always)"
+        - export DOCKER_BUILD_ARGS="--build-arg DOCKCROSS_IMAGE=$DOCKCROSS_IMAGE --build-arg OPENBLAS_TARGET=$OPENBLAS_TARGET"
+        - date; docker run --rm --privileged multiarch/qemu-user-static:register
+        - date; echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        # stage s1
+        - date; docker pull ${HELPER_IMAGE}.s1 || true
+        - date; docker build --tag ${HELPER_IMAGE}.s1 --target s1 --cache-from ${HELPER_IMAGE}.s1 ${DOCKER_BUILD_ARGS} travis
+        - date; docker push ${HELPER_IMAGE}.s1
+        # stage s2
+        - date; docker pull ${HELPER_IMAGE}.s2 || true
+        - date; docker build --tag ${HELPER_IMAGE}.s2 --target s2 --cache-from ${HELPER_IMAGE}.s1 --cache-from ${HELPER_IMAGE}.s2 ${DOCKER_BUILD_ARGS} travis
+        - date; docker push ${HELPER_IMAGE}.s2
+        # final stage
+        - date; docker pull ${HELPER_IMAGE} || true
+        - date; docker build --tag ${HELPER_IMAGE} --cache-from ${HELPER_IMAGE}.s1 --cache-from ${HELPER_IMAGE}.s2 --cache-from ${HELPER_IMAGE} ${DOCKER_BUILD_ARGS} travis
+        - date; docker push ${HELPER_IMAGE}
+        # build wheels
+        - date; docker run --rm -v "$(pwd):/io" -e "VERSION=$VERSION" ${HELPER_IMAGE} /io/travis/build-wheels.sh
+    - <<: *linux_job
+      env: DOCKCROSS_IMAGE=linux-armv6 OPENBLAS_TARGET=ARMV6
+    - <<: *linux_job
+      env: DOCKCROSS_IMAGE=linux-armv7 OPENBLAS_TARGET=ARMV7
+    - &windows_job
+      os: windows
+      script:
+        - choco install python3 --no-progress -y --version 3.6.8 
+        - choco install cmake   --no-progress -y --installargs 'ADD_CMAKE_TO_PATH=System'
+        - choco install swig    --no-progress -y
+        - C:\\Python36\\python -m pip install --upgrade pip wheel setuptools
+        - cd python
+        - C:\\Python36\\python setup.py bdist_wheel
 
 deploy:
   # Draft a GitHib Release for each commit

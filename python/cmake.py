@@ -46,7 +46,7 @@ class CMakeBuildExt(build_ext):
             cmake_args = [CMAKE_EXE,
                           ext.sourcedir,
                           '-Wno-dev',
-                          '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + output_dir,
+                          '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + output_dir.replace("\\", "/"),
                           '-DCMAKE_BUILD_TYPE=' + build_type]
             cmake_args.extend(
                 [x for x in
