@@ -43,7 +43,6 @@ jobs:
       os: windows
       script:
         - choco install python3 --no-progress -y --installargs 'AssociateFiles=0' --version 3.6.8 
-        - choco install cmake   --no-progress -y --installargs 'ADD_CMAKE_TO_PATH=System'
         - choco install swig    --no-progress -y
         - cmd.exe //c "RefreshEnv.cmd & python -m pip install --upgrade pip wheel setuptools"
         - cd python
