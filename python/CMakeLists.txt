@@ -4,10 +4,6 @@ project(vosk)
 set(TOP_SRCDIR "${CMAKE_SOURCE_DIR}/..")
 if("x$ENV{WHEEL_FLAGS}" STREQUAL "x")
     find_package (Python COMPONENTS Interpreter Development)
-elseif("x${CMAKE_SYSTEM_NAME}" MATCHES "xWindows")
-    # docker case
-    set(Python_INCLUDE_DIR "")
-    set(Python_LIBRARY "")
 else()
     # docker case
     set(Python_INCLUDE_DIR "")
