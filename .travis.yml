@@ -49,6 +49,7 @@ jobs:
         - cd python
         - export DISTUTILS_DEBUG=1
         - export CMAKE_EXE="C:\\Program Files\\CMake\\bin\\cmake.exe"
+        - export Python_ROOT_DIR=C:\\Python36
         - C:\\Python36\\python setup.py bdist_wheel
 
 deploy:
