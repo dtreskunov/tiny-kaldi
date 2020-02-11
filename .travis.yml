@@ -48,7 +48,7 @@ jobs:
         - C:\\Python36\\python -m pip install --upgrade pip wheel setuptools
         - cd python
         - export DISTUTILS_DEBUG=1
-        - export CMAKE_EXE=C:\\Program Files\\CMake\\bin\\cmake.exe
+        - export CMAKE_EXE="C:\\Program Files\\CMake\\bin\\cmake.exe"
         - C:\\Python36\\python setup.py bdist_wheel
 
 deploy:
