@@ -3,7 +3,7 @@ project(vosk)
 
 set(TOP_SRCDIR "${CMAKE_SOURCE_DIR}/..")
 if("x$ENV{WHEEL_FLAGS}" STREQUAL "x")
-    set(Python_ROOT_DIR $ENV{Python_ROOT_DIR})
+    set(Python_ROOT_DIR "$ENV{Python_ROOT_DIR}")
     find_package (Python COMPONENTS Interpreter Development)
 else()
     # docker case
