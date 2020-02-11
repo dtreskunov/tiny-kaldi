@@ -45,10 +45,9 @@ jobs:
         - choco install python3 --no-progress -y --version 3.6.8 
         - choco install cmake   --no-progress -y --installargs 'ADD_CMAKE_TO_PATH=System'
         - choco install swig    --no-progress -y
-        - cmd.exe //c "RefreshEnv.cmd"
-        - C:\\Python36\\python -m pip install --upgrade pip wheel setuptools
+        - cmd.exe //c "RefreshEnv.cmd & python -m pip install --upgrade pip wheel setuptools"
         - cd python
-        - C:\\Python36\\python setup.py bdist_wheel
+        - cmd.exe //c "RefreshEnv.cmd & python setup.py bdist_wheel"
 
 deploy:
   # Draft a GitHib Release for each commit
