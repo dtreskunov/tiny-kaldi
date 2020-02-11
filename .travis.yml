@@ -45,7 +45,7 @@ jobs:
         - choco install python3 --no-progress -y --version 3.6.8 
         - choco install cmake   --no-progress -y --installargs 'ADD_CMAKE_TO_PATH=System'
         - choco install swig    --no-progress -y
-        - refreshenv
+        - cmd.exe //c "RefreshEnv.cmd"
         - C:\\Python36\\python -m pip install --upgrade pip wheel setuptools
         - cd python
         - C:\\Python36\\python setup.py bdist_wheel
