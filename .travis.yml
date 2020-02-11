@@ -44,7 +44,7 @@ jobs:
       script:
         - export VERSION="$(git describe --tags --always)"
         - choco install swig    --no-progress -y
-        - choco install python3 --no-progress -y --installargs --version 3.6.8 
+        - choco install python3 --no-progress -y --version 3.6.8 
         - C:\\Python36\\python -m pip install --upgrade pip wheel setuptools
         - cd python
         - export DISTUTILS_DEBUG=1
