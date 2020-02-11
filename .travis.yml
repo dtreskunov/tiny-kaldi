@@ -42,12 +42,13 @@ jobs:
     - &windows_job
       os: windows
       script:
-        - choco install python3 --no-progress -y --installargs 'AssociateFiles=0' --version 3.6.8 
+        - cmd.exe //c "RefreshEnv.cmd & set"
+        - choco install python3 --no-progress -y --installargs 'PrependPath=1' --version 3.6.8 
+        - cmd.exe //c "RefreshEnv.cmd & set"
         - choco install swig    --no-progress -y
         - cmd.exe //c "RefreshEnv.cmd & python -m pip install --upgrade pip wheel setuptools"
-        - cd python
         - export VERSION="$(git describe --tags --always)"
-        - cmd.exe //c "RefreshEnv.cmd & set DISTUTILS_DEBUG=1 & python setup.py bdist_wheel"
+        - cmd.exe //c "RefreshEnv.cmd & set DISTUTILS_DEBUG=1 & python python/setup.py bdist_wheel"
 
 deploy:
   # Draft a GitHib Release for each commit

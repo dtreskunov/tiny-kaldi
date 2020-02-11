@@ -56,7 +56,6 @@ class CMakeBuildExt(build_ext):
             env = os.environ.copy()
             if not os.path.exists(self.build_temp):
                 os.makedirs(self.build_temp)
-            print('PATH:', os.environ['PATH'])
             print('cmake_args:', cmake_args)
             subprocess.check_call(cmake_args,
                                   cwd=self.build_temp,
