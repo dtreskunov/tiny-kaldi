@@ -46,7 +46,9 @@ class CMakeBuildExt(build_ext):
             build_type = 'Debug' if self.debug else 'Release'
             cmake_args = [CMAKE_EXE,
                           ext.sourcedir,
-                          '-Wno-dev',
+                          '-Wdev',
+                          '--debug-output',
+                          '--trace',
                           '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + output_dir.replace("\\", "/"),
                           '-DCMAKE_BUILD_TYPE=' + build_type]
             cmake_args.extend(
