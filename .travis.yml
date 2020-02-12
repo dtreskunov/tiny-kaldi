@@ -44,6 +44,8 @@ jobs:
       cache:
         directories:
           - $HOME/AppData/Local/Temp/chocolatey
+      before_cache:
+        - rm $HOME/AppData/Local/Temp/chocolatey/*.log
       install:
         - choco install swig    --no-progress -y
         - choco install python3 --no-progress -y --version 3.6.8 
