@@ -1,7 +1,7 @@
 import os
 import re
 import setuptools
-from cmake import *
+from cmake_extensions import *
 
 with open("README.md", "r") as fh:
     long_description = fh.read()

@@ -4,6 +4,7 @@ import os
 import subprocess
 import shutil
 import sys
+from glob import glob
 from setuptools import Extension
 from setuptools.command.build_ext import build_ext
 from setuptools.command.build_py import build_py
@@ -60,6 +61,7 @@ class CMakeBuildExt(build_ext):
             subprocess.check_call(cmake_args,
                                   cwd=self.build_temp,
                                   env=env)
+            print('Contents of build_temp:', '\n'.join(glob('**', recursive=True)))
             subprocess.check_call(['make', 'VERBOSE=1', ext.name],
                                   cwd=self.build_temp,
                                   env=env)
