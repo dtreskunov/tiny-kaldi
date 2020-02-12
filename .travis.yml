@@ -42,11 +42,14 @@ jobs:
     - &windows_job
       os: windows
       script:
+        - git clone -b win/1.7.2.1 --single-branch https://github.com/kkm000/openfst
+        - cd openfst
+        - cmake && cmake --build
         - export VERSION="$(git describe --tags --always)"
         - choco install swig    --no-progress -y
         - choco install python3 --no-progress -y --version 3.6.8 
         - C:\\Python36\\python -m pip install --upgrade pip wheel setuptools
-        - cd python
+        - cd "${TRAVIS_BUILD_DIR}/python"
         - export DISTUTILS_DEBUG=1
         - C:\\Python36\\python setup.py bdist_wheel
 
