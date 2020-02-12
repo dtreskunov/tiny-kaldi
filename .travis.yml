@@ -52,12 +52,12 @@ jobs:
         - C:/Python36/Scripts/conan install .
       script:
         - git clone -b win/1.7.2.1 --single-branch https://github.com/kkm000/openfst
-        - cmake -S openfst -B openfst/build64 -G "Visual Studio 15 2017 Win64" "-DCMAKE_TOOLCHAIN_FILE=${TRAVIS_BUILD_DIR}/conan_paths.cmake" -DHAVE_FAR=ON -DHAVE_NGRAM=ON -DHAVE_LOOKAHEAD=ON
-        - cmake --build openfst/build64
-        - export VERSION="$(git describe --tags --always)"
-        - cd "${TRAVIS_BUILD_DIR}/python"
-        - export DISTUTILS_DEBUG=1
-        - C:/Python36/python setup.py bdist_wheel
+        - cmake -S openfst -B openfst/build64 -G "Visual Studio 15 2017 Win64" "-DCMAKE_TOOLCHAIN_FILE=${TRAVIS_BUILD_DIR}/conan_paths.cmake" -DHAVE_FAR=ON -DHAVE_NGRAM=ON -DHAVE_LOOKAHEAD=ON --debug-output
+        # - cmake --build openfst/build64
+        # - export VERSION="$(git describe --tags --always)"
+        # - cd "${TRAVIS_BUILD_DIR}/python"
+        # - export DISTUTILS_DEBUG=1
+        # - C:/Python36/python setup.py bdist_wheel
 
 deploy:
   # Draft a GitHib Release for each commit
