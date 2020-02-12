@@ -7,8 +7,8 @@ git:
 language: shell # https://config.travis-ci.com/ref/language
 
 jobs:
-  exclude:
-    - os: linux
+  # exclude:
+  #   - os: linux
   include:
     - &linux_job
       env: DOCKCROSS_IMAGE=manylinux2010-x64 OPENBLAS_TARGET=NEHALEM
