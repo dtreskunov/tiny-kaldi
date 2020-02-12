@@ -55,8 +55,9 @@ jobs:
       script:
         - git clone -b win/1.7.2.1 --single-branch https://github.com/kkm000/openfst
         - curl https://patch-diff.githubusercontent.com/raw/kkm000/openfst/pull/22.patch | git apply -v --directory openfst
+        - echo 'add_compile_options("/W0")' >> openfst/CMakeLists.txt
         - cmake -S openfst -B openfst/build64 -G "Visual Studio 15 2017 Win64" "-DCMAKE_TOOLCHAIN_FILE=${TRAVIS_BUILD_DIR}/conan_paths.cmake" -DHAVE_FAR=ON -DHAVE_NGRAM=ON -DHAVE_LOOKAHEAD=ON
-        - cmake --build openfst/build64 | tail -n 100
+        - cmake --build openfst/build64
         # - export VERSION="$(git describe --tags --always)"
         # - cd "${TRAVIS_BUILD_DIR}/python"
         # - export DISTUTILS_DEBUG=1
