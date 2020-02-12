@@ -53,10 +53,41 @@ jobs:
         - C:/Python36/Scripts/conan user
         - C:/Python36/Scripts/conan install travis
       script:
-        - git clone -b win/1.7.2.1 --single-branch https://github.com/kkm000/openfst
-        - curl https://patch-diff.githubusercontent.com/raw/kkm000/openfst/pull/22.patch | git apply -v --directory openfst
-        - cmake -S openfst -B openfst/build64 -G "Visual Studio 15 2017 Win64" "-DCMAKE_TOOLCHAIN_FILE=${TRAVIS_BUILD_DIR}/conan_paths.cmake" "-DCMAKE_USER_MAKE_RULES_OVERRIDE=${TRAVIS_BUILD_DIR}/travis/CompilerOptions.cmake" -DHAVE_FAR=ON -DHAVE_NGRAM=ON -DHAVE_LOOKAHEAD=ON
-        - cmake --build openfst/build64
+        - |
+          # Build OpenFST in travis/openfst
+          set -xeuo pipefail
+          export OPENFST_DIR="${TRAVIS_BUILD_DIR}/travis/openfst"
+          mkdir -p "$OPENFST_DIR"
+          cd "$OPENFST_DIR"
+          git clone -b winport --single-branch https://github.com/kkm000/openfst .
+          curl https://patch-diff.githubusercontent.com/raw/kkm000/openfst/pull/22.patch | git apply -v
+          # cmake -S . -B build64 -G "Visual Studio 15 2017 Win64" "-DCMAKE_TOOLCHAIN_FILE=${TRAVIS_BUILD_DIR}/conan_paths.cmake" "-DCMAKE_USER_MAKE_RULES_OVERRIDE=${TRAVIS_BUILD_DIR}/travis/CompilerOptions.cmake" -DHAVE_FAR=ON -DHAVE_NGRAM=ON -DHAVE_LOOKAHEAD=ON
+          # cmake --build build64
+        - |
+          # Build Kaldi in travis/kaldi
+          set -xeuo pipefail
+          export KALDI_DIR="${TRAVIS_BUILD_DIR}/travis/kaldi"
+          mkdir -p "$KALDI_DIR"
+          cd "$KALDI_DIR"
+          git clone -b lookahead --single-branch https://github.com/alphacep/kaldi .
+          cd windows
+          cp variables.props.dev variables.props
+          win_path() {
+            echo $1 | sed -e 's~^/\([a-z]\)/~\1:/~i' -e 's~/~\\~g'
+          }
+          cmake_property() {
+            cat "$1" | grep "set($2 " | sed -e 's/.*"\(.*\)").*/\\1/'
+          }
+          sed -ie 's:<OPENBLASDIR>.*</OPENBLASDIR>:<OPENBLASDIR>$(win_path $(cmake_property "${TRAVIS_BUILD_DIR}/conan_paths.cmake" CONAN_OPENBLAS_ROOT))</OPENBLASDIR>:' variables.props
+          sed -ie "s:<OPENFST>.*</OPENFST>:<OPENFST>$(win_path "$OPENFST_DIR"}</OPENFST>:" variables.props
+          sed -ie "s:<OPENFSTLIB>.*</OPENFSTLIB>:<OPENFSTLIB>$(win_path "${OPENFST_DIR}/build64")</OPENFSTLIB>:" variables.props
+          echo 'variables.props:'
+          cat variables.props
+          cp kaldiwin_openblas.props kaldiwin.props
+          generate_solution.pl --vsver vs2017 --enable-openblas
+          get_version.pl
+          echo "contents of KALDI_DIR:"
+          ls -l "$KALDI_DIR"
         # - export VERSION="$(git describe --tags --always)"
         # - cd "${TRAVIS_BUILD_DIR}/python"
         # - export DISTUTILS_DEBUG=1
