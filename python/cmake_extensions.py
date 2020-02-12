@@ -1,5 +1,7 @@
 # From https://github.com/raydouglass/cmake_setuptools
 
+# See https://cmake.org/cmake/help/latest/manual/cmake.1.html for cmake CLI options
+
 import os
 import subprocess
 import shutil
@@ -45,7 +47,8 @@ class CMakeBuildExt(build_ext):
 
             build_type = 'Debug' if self.debug else 'Release'
             cmake_args = [CMAKE_EXE,
-                          ext.sourcedir,
+                          '-S', ext.sourcedir,
+                          '-B', self.build_temp,
                           '-Wno-dev',
                           '--debug-output',
                           '-DPython_EXECUTABLE=' + sys.executable.replace("\\", "/"),
@@ -57,17 +60,13 @@ class CMakeBuildExt(build_ext):
                  if x])
 
             env = os.environ.copy()
-            if not os.path.exists(self.build_temp):
-                os.makedirs(self.build_temp)
             print('Generating native project files:', cmake_args)
             subprocess.check_call(cmake_args,
-                                  cwd=self.build_temp,
                                   env=env)
             print('Listing files in current directory:', '\n'.join(glob('**', recursive=True)))
-            build_args = [CMAKE_EXE, '--build', '.', '--verbose']
+            build_args = [CMAKE_EXE, '--build', self.build_temp, '--verbose']
             print('Building:', build_args)
             subprocess.check_call(build_args,
-                                  cwd=self.build_temp,
                                   env=env)
             print()
         else:
