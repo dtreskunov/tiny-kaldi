@@ -52,6 +52,7 @@ class CMakeBuildExt(build_ext):
                           '-Wno-dev',
                           '--debug-output',
                           '-DPython_EXECUTABLE=' + sys.executable.replace("\\", "/"),
+                          '-DCMAKE_VERBOSE_MAKEFILE=TRUE',
                           '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + output_dir.replace("\\", "/"),
                           '-DCMAKE_BUILD_TYPE=' + build_type]
             cmake_args.extend(
@@ -64,7 +65,7 @@ class CMakeBuildExt(build_ext):
             subprocess.check_call(cmake_args,
                                   env=env)
             print('Listing files in current directory:', '\n'.join(glob('**', recursive=True)))
-            build_args = [CMAKE_EXE, '--build', self.build_temp, '--verbose']
+            build_args = [CMAKE_EXE, '--build', self.build_temp]
             print('Building:', build_args)
             subprocess.check_call(build_args,
                                   env=env)
