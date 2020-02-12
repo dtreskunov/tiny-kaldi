@@ -43,8 +43,8 @@ jobs:
       os: windows
       script:
         - git clone -b win/1.7.2.1 --single-branch https://github.com/kkm000/openfst
-        - cmake -S openfst -B openfst/build -DHAVE_FAR=ON -DHAVE_NGRAM=ON -DHAVE_LOOKAHEAD=ON
-        - cmake --build openfst/build
+        - cmake -S openfst -B openfst/build64 -G "Visual Studio 15 2017 Win64" -DHAVE_FAR=ON -DHAVE_NGRAM=ON -DHAVE_LOOKAHEAD=ON
+        - cmake --build openfst/build64
         - export VERSION="$(git describe --tags --always)"
         - choco install swig    --no-progress -y
         - choco install python3 --no-progress -y --version 3.6.8 
