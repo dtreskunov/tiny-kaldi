@@ -48,17 +48,16 @@ jobs:
         - choco install swig    --no-progress -y
         - choco install python3 --no-progress -y --version 3.6.8 
         - C:/Python36/python -m pip install --upgrade pip wheel setuptools conan
-        # Automatic detection of your arch, compiler, etc.
         - C:/Python36/Scripts/conan user
+        - C:/Python36/Scripts/conan install .
       script:
-        - conan install .
         - git clone -b win/1.7.2.1 --single-branch https://github.com/kkm000/openfst
         - cmake -S openfst -B openfst/build64 -G "Visual Studio 15 2017 Win64" -DCMAKE_TOOLCHAIN_FILE=conan_paths.cmake -DHAVE_FAR=ON -DHAVE_NGRAM=ON -DHAVE_LOOKAHEAD=ON
         - cmake --build openfst/build64
         - export VERSION="$(git describe --tags --always)"
         - cd "${TRAVIS_BUILD_DIR}/python"
         - export DISTUTILS_DEBUG=1
-        - C:\\Python36\\python setup.py bdist_wheel
+        - C:/Python36/python setup.py bdist_wheel
 
 deploy:
   # Draft a GitHib Release for each commit
