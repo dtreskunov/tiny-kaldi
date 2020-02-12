@@ -52,7 +52,7 @@ class CMakeBuildExt(build_ext):
                           '-Wno-dev',
                           '--debug-output',
                           '-DPython_EXECUTABLE=' + sys.executable.replace("\\", "/"),
-                          '-DCMAKE_VERBOSE_MAKEFILE=TRUE',
+                          '-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON',
                           '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + output_dir.replace("\\", "/"),
                           '-DCMAKE_BUILD_TYPE=' + build_type]
             cmake_args.extend(
