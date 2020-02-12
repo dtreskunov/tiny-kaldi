@@ -48,7 +48,6 @@ class CMakeBuildExt(build_ext):
                           ext.sourcedir,
                           '-Wdev',
                           '--debug-output',
-                          '--trace',
                           '-DPython_EXECUTABLE=' + sys.executable.replace("\\", "/"),
                           '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + output_dir.replace("\\", "/"),
                           '-DCMAKE_BUILD_TYPE=' + build_type]
