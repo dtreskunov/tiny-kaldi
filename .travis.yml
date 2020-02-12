@@ -55,7 +55,7 @@ jobs:
       script:
         - |
           # Build OpenFST in travis/openfst
-          set -xeuo pipefail
+          set -xeo pipefail
           export OPENFST_DIR="${TRAVIS_BUILD_DIR}/travis/openfst"
           mkdir -p "$OPENFST_DIR"
           cd "$OPENFST_DIR"
@@ -65,7 +65,7 @@ jobs:
           # cmake --build build64
         - |
           # Build Kaldi in travis/kaldi
-          set -xeuo pipefail
+          set -xeo pipefail
           export KALDI_DIR="${TRAVIS_BUILD_DIR}/travis/kaldi"
           mkdir -p "$KALDI_DIR"
           cd "$KALDI_DIR"
