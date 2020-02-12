@@ -64,7 +64,7 @@ class CMakeBuildExt(build_ext):
                                   cwd=self.build_temp,
                                   env=env)
             print('Contents of build_temp:', '\n'.join(glob('**', recursive=True)))
-            subprocess.check_call(['make', 'VERBOSE=1', ext.name],
+            subprocess.check_call([CMAKE_EXE, '--build', '.', '--verbose'],
                                   cwd=self.build_temp,
                                   env=env)
             print()
