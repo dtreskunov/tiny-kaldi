@@ -4,6 +4,7 @@ project(vosk)
 set(TOP_SRCDIR "${CMAKE_SOURCE_DIR}/..")
 if("x$ENV{WHEEL_FLAGS}" STREQUAL "x")
     find_package (Python REQUIRED COMPONENTS Interpreter Development)
+    message(STATUS "Python found, Python_INCLUDE_DIR=${Python_INCLUDE_DIR}")
 else()
     # docker case
     set(Python_INCLUDE_DIR "")

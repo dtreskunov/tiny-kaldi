@@ -46,7 +46,7 @@ class CMakeBuildExt(build_ext):
             build_type = 'Debug' if self.debug else 'Release'
             cmake_args = [CMAKE_EXE,
                           ext.sourcedir,
-                          '-Wdev',
+                          '-Wno-dev',
                           '--debug-output',
                           '-DPython_EXECUTABLE=' + sys.executable.replace("\\", "/"),
                           '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + output_dir.replace("\\", "/"),
@@ -59,12 +59,14 @@ class CMakeBuildExt(build_ext):
             env = os.environ.copy()
             if not os.path.exists(self.build_temp):
                 os.makedirs(self.build_temp)
-            print('cmake_args:', cmake_args)
+            print('Generating native project files:', cmake_args)
             subprocess.check_call(cmake_args,
                                   cwd=self.build_temp,
                                   env=env)
-            print('Contents of build_temp:', '\n'.join(glob('**', recursive=True)))
-            subprocess.check_call([CMAKE_EXE, '--build', '.', '--verbose'],
+            print('Listing files in current directory:', '\n'.join(glob('**', recursive=True)))
+            build_args = [CMAKE_EXE, '--build', '.', '--verbose']
+            print('Building:', build_args)
+            subprocess.check_call(build_args,
                                   cwd=self.build_temp,
                                   env=env)
             print()
