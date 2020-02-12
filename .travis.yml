@@ -76,7 +76,7 @@ jobs:
             echo $1 | sed -e 's~^/\([a-z]\)/~\1:/~i' -e 's~/~\\~g'
           }
           cmake_property() {
-            cat "$1" | grep "set($2 " | sed -e 's/.*"\(.*\)").*/\\1/'
+            cat "$1" | grep "set($2 " | sed -e 's/.*"\(.*\)").*/\1/'
           }
           CONAN_OPENBLAS_ROOT=$(cmake_property "${TRAVIS_BUILD_DIR}/conan_paths.cmake" CONAN_OPENBLAS_ROOT)
           echo "CONAN_OPENBLAS_ROOT is ${CONAN_OPENBLAS_ROOT}"
