@@ -51,7 +51,7 @@ jobs:
         - choco install python3 --no-progress -y --version 3.6.8 
         - C:/Python36/python -m pip install --upgrade pip wheel setuptools conan
         - C:/Python36/Scripts/conan user
-        - C:/Python36/Scripts/conan install .
+        - C:/Python36/Scripts/conan install travis
       script:
         - git clone -b win/1.7.2.1 --single-branch https://github.com/kkm000/openfst
         - curl https://patch-diff.githubusercontent.com/raw/kkm000/openfst/pull/22.patch | git apply -v --directory openfst
