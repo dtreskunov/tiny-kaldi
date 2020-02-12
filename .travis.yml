@@ -41,18 +41,15 @@ jobs:
       env: DOCKCROSS_IMAGE=linux-armv7 OPENBLAS_TARGET=ARMV7
     - &windows_job
       os: windows
-      language: python
-      python: '3.7'
       cache:
         directories:
           - $HOME/AppData/Local/Temp/chocolatey
       install:
-        - pip install conan
-        # Automatic detection of your arch, compiler, etc.
-        - conan user
         - choco install swig    --no-progress -y
         - choco install python3 --no-progress -y --version 3.6.8 
-        - C:\\Python36\\python -m pip install --upgrade pip wheel setuptools
+        - C:/Python36/python -m pip install --upgrade pip wheel setuptools conan
+        # Automatic detection of your arch, compiler, etc.
+        - C:/Python36/Scripts/conan user
       script:
         - conan install .
         - git clone -b win/1.7.2.1 --single-branch https://github.com/kkm000/openfst
