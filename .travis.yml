@@ -46,7 +46,7 @@ jobs:
           - $HOME/AppData/Local/Temp/chocolatey
           - /C/vosk-deps
       script:
-        - mkdir /C/vosk-deps
+        - mkdir -p /C/vosk-deps
         - cd /C/vosk-deps
         - git clone https://github.com/Microsoft/vcpkg
         - cmd.exe //C 'vcpkg\\bootstrap-vcpkg.bat'
