@@ -48,7 +48,6 @@ jobs:
           - travis/kaldi
       before_cache:
         - find $HOME/AppData/Local/Temp/chocolatey -type f -name '*.log' -delete
-        - find travis/openfst -type f -name '*.ilk' -or -name '*.obj' -or -name '*.pdb' -delete
         - find travis/kaldi -type f -name '*.ilk' -or -name '*.obj' -or -name '*.pdb' -delete
       install:
         - choco install swig    --no-progress -y
@@ -78,6 +77,8 @@ jobs:
             travis_wait 30 sh -c "cmake --build build64 | tail -n100"
             git describe --always > .valid-cache
             echo "OpenFST build successful: " $(cat .valid-cache)
+            echo "Removing intermediate files:"
+            find . -type f -name '*.ilk' -or -name '*.obj' -or -name '*.pdb' -ls -delete
           fi
         - |
           # # Build Kaldi in travis/kaldi
@@ -90,10 +91,12 @@ jobs:
             echo "Reusing cached Kaldi build artifacts: " $(cat .valid-cache)
           else
             if [ -d .git ]; then
-              echo "Deleting cached build artifacts from failed Kaldi build"
-              find -mindepth 1 -delete
+              echo "Found cached Kaldi repo. Doing git pull..."
+              git pull
+            else
+              echo "Cloning Kaldi git repo..."
+              git clone -b lookahead --single-branch https://github.com/alphacep/kaldi .
             fi
-            git clone -b lookahead --single-branch https://github.com/alphacep/kaldi .
             cd windows
             cp variables.props.dev variables.props
             win_path() {
@@ -113,12 +116,20 @@ jobs:
             ./generate_solution.pl --vsver vs2017 --enable-openblas
             ./get_version.pl
             SLN_PATH_WIN=$(win_path $(find "$KALDI_DIR" -type f -name '*.sln'))
-            cat "$SLN_PATH_WIN"
-
-            travis_wait 40 '/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin/MSBuild.exe' '$SLN_PATH_WIN' -property:Configuration=Release -property:Platform=x64 -target:kaldi-online2 -maxcpucount
+            grep Project "$SLN_PATH_WIN"
             
-            git describe --always > .valid-cache
-            echo "Kaldi build successful: " $(cat .valid-cache)
+            set +e
+            travis_wait 10 '/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin/MSBuild.exe' '$SLN_PATH_WIN' -property:Configuration=Release -property:Platform=x64 -target:kaldi-online2 -maxcpucount:1
+            set -e
+            if [ $? -eq 0 ]; then
+              cd "$KALDI_DIR"
+              git describe --always > .valid-cache
+              echo "Kaldi build successful: " $(cat .valid-cache)
+              echo "Removing intermediate files:"
+              find . -type f -name '*.ilk' -or -name '*.obj' -or -name '*.pdb' -ls -delete
+            else
+              echo "Kaldi build was not successful. Keeping intermediate files. Retry the build."
+            fi
           fi
           
         # - export VERSION="$(git describe --tags --always)"
