@@ -58,28 +58,13 @@ jobs:
         - echo $PATH
         - |
           # Build OpenFST in travis/openfst
-          set -xeo pipefail
+          set -eo pipefail
           export OPENFST_DIR="${TRAVIS_BUILD_DIR}/travis/openfst"
           mkdir -p "$OPENFST_DIR"
           cd "$OPENFST_DIR"
           if [ -f .valid-cache ]; then
             echo "Reusing cached OpenFST build artifacts: " $(cat .valid-cache)
-            file_size_by_ext() {
-              declare -A ary
-
-              while IFS=$'\t' read name size; do 
-                ext=${name##*.}
-                ((ary[$ext] += size))
-              done < <(find $1 -type f  -printf "%f\t%s\n")
-
-              for key in "${!ary[@]}"; do 
-                printf "%s\t%s\n" "$key" "${ary[$key]}"
-              done
-            }
-            echo "file_size_by_ext $(pwd)"
-            file_size_by_ext .
-            echo "file_size_by_ext $(pwd)/build64"
-            file_size_by_ext build64
+            find . -type f -name '*.ilk' -or -name '*.obj' -or -name '*.pdb'
           else
             if [ -d .git ]; then
               echo "Deleting cached build artifacts from failed OpenFST build"
