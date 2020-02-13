@@ -67,7 +67,7 @@ jobs:
           else
             if [ -d .git ]; then
               echo "Deleting cached build artifacts from failed OpenFST build"
-              rm -rf *
+              find -mindepth 1 -delete
             fi
             git clone -b winport --single-branch https://github.com/kkm000/openfst .
             curl https://patch-diff.githubusercontent.com/raw/kkm000/openfst/pull/22.patch | git apply -v
@@ -87,7 +87,7 @@ jobs:
           else
             if [ -d .git ]; then
               echo "Deleting cached build artifacts from failed Kaldi build"
-              rm -rf *
+              find -mindepth 1 -delete
             fi
             git clone -b lookahead --single-branch https://github.com/alphacep/kaldi .
             cd windows
