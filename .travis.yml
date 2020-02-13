@@ -83,7 +83,7 @@ jobs:
         - |
           # # Build Kaldi in travis/kaldi
           date
-          set -eo pipefail
+          set -xeo pipefail
           export KALDI_DIR="${TRAVIS_BUILD_DIR}/travis/kaldi"
           mkdir -p "$KALDI_DIR"
           cd "$KALDI_DIR"
