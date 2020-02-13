@@ -61,8 +61,8 @@ jobs:
           cd "$OPENFST_DIR"
           git clone -b winport --single-branch https://github.com/kkm000/openfst .
           curl https://patch-diff.githubusercontent.com/raw/kkm000/openfst/pull/22.patch | git apply -v
-          # cmake -S . -B build64 -G "Visual Studio 15 2017 Win64" "-DCMAKE_TOOLCHAIN_FILE=${TRAVIS_BUILD_DIR}/conan_paths.cmake" "-DCMAKE_USER_MAKE_RULES_OVERRIDE=${TRAVIS_BUILD_DIR}/travis/CompilerOptions.cmake" -DHAVE_FAR=ON -DHAVE_NGRAM=ON -DHAVE_LOOKAHEAD=ON
-          # cmake --build build64
+          cmake -S . -B build64 -G "Visual Studio 15 2017 Win64" "-DCMAKE_TOOLCHAIN_FILE=${TRAVIS_BUILD_DIR}/conan_paths.cmake" "-DCMAKE_USER_MAKE_RULES_OVERRIDE=${TRAVIS_BUILD_DIR}/travis/CompilerOptions.cmake" -DHAVE_FAR=ON -DHAVE_NGRAM=ON -DHAVE_LOOKAHEAD=ON
+          cmake --build build64
         - |
           # Build Kaldi in travis/kaldi
           set -xeo pipefail
@@ -85,11 +85,11 @@ jobs:
           sed -ie "s~<OPENBLASDIR>.*</OPENBLASDIR>~<OPENBLASDIR>$(esc_sed_rhs $(win_path "$CONAN_OPENBLAS_ROOT"))</OPENBLASDIR>~" variables.props
           sed -ie "s~<OPENFST>.*</OPENFST>~<OPENFST>$(esc_sed_rhs $(win_path "$OPENFST_DIR"))</OPENFST>~" variables.props
           sed -ie "s~<OPENFSTLIB>.*</OPENFSTLIB>~<OPENFSTLIB>$(esc_sed_rhs $(win_path "${OPENFST_DIR}/build64"))</OPENFSTLIB>~" variables.props
-          cat variables.props
           cp kaldiwin_openblas.props kaldiwin.props
           ./generate_solution.pl --vsver vs2017 --enable-openblas
           ./get_version.pl
-          find "$KALDI_DIR" -type f -name '*.sln'
+          SLN_PATH_WIN=$(win_path $(find "$KALDI_DIR" -type f -name '*.sln'))
+          msbuild "$SLN_PATH_WIN" /p:Configuration=Release|x64
           
         # - export VERSION="$(git describe --tags --always)"
         # - cd "${TRAVIS_BUILD_DIR}/python"
