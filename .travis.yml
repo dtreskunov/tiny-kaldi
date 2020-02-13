@@ -48,12 +48,12 @@ jobs:
           - travis/kaldi
       before_cache:
         - rm $HOME/AppData/Local/Temp/chocolatey/*.log
-      install:
-        - choco install swig    --no-progress -y
-        - choco install python3 --no-progress -y --version 3.6.8 
-        - C:/Python36/python -m pip install --upgrade pip wheel setuptools conan
-        - C:/Python36/Scripts/conan user
-        - C:/Python36/Scripts/conan install travis
+      # install:
+      #   - choco install swig    --no-progress -y
+      #   - choco install python3 --no-progress -y --version 3.6.8 
+      #   - C:/Python36/python -m pip install --upgrade pip wheel setuptools conan
+      #   - C:/Python36/Scripts/conan user
+      #   - C:/Python36/Scripts/conan install travis
       script:
         - echo $PATH
         - |
@@ -64,7 +64,7 @@ jobs:
           cd "$OPENFST_DIR"
           if [ -f .valid-cache ]; then
             echo "Reusing cached OpenFST build artifacts: " $(cat .valid-cache)
-            find . -type f -name '*.ilk' -or -name '*.obj' -or -name '*.pdb'
+            find . -type f -name '*.ilk' -or -name '*.obj' -or -name '*.pdb' -delete
           else
             if [ -d .git ]; then
               echo "Deleting cached build artifacts from failed OpenFST build"
