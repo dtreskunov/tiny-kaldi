@@ -45,6 +45,7 @@ jobs:
         directories:
           - $HOME/AppData/Local/Temp/chocolatey
           - travis/openfst
+          - travis/kaldi
       before_cache:
         - rm $HOME/AppData/Local/Temp/chocolatey/*.log
       install:
@@ -62,10 +63,10 @@ jobs:
           mkdir -p "$OPENFST_DIR"
           cd "$OPENFST_DIR"
           if [ -f .valid-cache ]; then
-            echo "Reusing cached openfst build artifacts: " $(cat .valid-cache)
+            echo "Reusing cached OpenFST build artifacts: " $(cat .valid-cache)
           else
             if [ -d .git ]; then
-              echo "Deleting cached build artifacts from failed build"
+              echo "Deleting cached build artifacts from failed OpenFST build"
               rm -rf *
             fi
             git clone -b winport --single-branch https://github.com/kkm000/openfst .
@@ -81,27 +82,41 @@ jobs:
           export KALDI_DIR="${TRAVIS_BUILD_DIR}/travis/kaldi"
           mkdir -p "$KALDI_DIR"
           cd "$KALDI_DIR"
-          git clone -b lookahead --single-branch https://github.com/alphacep/kaldi .
-          cd windows
-          cp variables.props.dev variables.props
-          win_path() {
-            echo $1 | sed -e 's~^/\([a-z]\)/~\1:/~i' -e 's~/~\\~g'
-          }
-          cmake_property() {
-            cat "$1" | grep "set($2 " | sed -e 's/.*"\(.*\)").*/\1/'
-          }
-          esc_sed_rhs() {
-            echo $1 | sed -e 's~\\\([0-9]\)~\\\\\1~g'
-          }
-          CONAN_OPENBLAS_ROOT=$(cmake_property "${TRAVIS_BUILD_DIR}/conan_paths.cmake" CONAN_OPENBLAS_ROOT)
-          sed -ie "s~<OPENBLASDIR>.*</OPENBLASDIR>~<OPENBLASDIR>$(esc_sed_rhs $(win_path "$CONAN_OPENBLAS_ROOT"))</OPENBLASDIR>~" variables.props
-          sed -ie "s~<OPENFST>.*</OPENFST>~<OPENFST>$(esc_sed_rhs $(win_path "$OPENFST_DIR"))</OPENFST>~" variables.props
-          sed -ie "s~<OPENFSTLIB>.*</OPENFSTLIB>~<OPENFSTLIB>$(esc_sed_rhs $(win_path "${OPENFST_DIR}/build64"))</OPENFSTLIB>~" variables.props
-          cp kaldiwin_openblas.props kaldiwin.props
-          ./generate_solution.pl --vsver vs2017 --enable-openblas
-          ./get_version.pl
-          SLN_PATH_WIN=$(win_path $(find "$KALDI_DIR" -type f -name '*.sln'))
-          /c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin/MSBuild.exe "$SLN_PATH_WIN" "/p:Configuration=Release|x64"
+          if [ -f .valid-cache ]; then
+            echo "Reusing cached Kaldi build artifacts: " $(cat .valid-cache)
+          else
+            if [ -d .git ]; then
+              echo "Deleting cached build artifacts from failed Kaldi build"
+              rm -rf *
+            fi
+            git clone -b lookahead --single-branch https://github.com/alphacep/kaldi .
+            cd windows
+            cp variables.props.dev variables.props
+            win_path() {
+              echo $1 | sed -e 's~^/\([a-z]\)/~\1:/~i' -e 's~/~\\~g'
+            }
+            cmake_property() {
+              cat "$1" | grep "set($2 " | sed -e 's/.*"\(.*\)").*/\1/'
+            }
+            esc_sed_rhs() {
+              echo $1 | sed -e 's~\\\([0-9]\)~\\\\\1~g'
+            }
+            CONAN_OPENBLAS_ROOT=$(cmake_property "${TRAVIS_BUILD_DIR}/conan_paths.cmake" CONAN_OPENBLAS_ROOT)
+            sed -ie "s~<OPENBLASDIR>.*</OPENBLASDIR>~<OPENBLASDIR>$(esc_sed_rhs $(win_path "$CONAN_OPENBLAS_ROOT"))</OPENBLASDIR>~" variables.props
+            sed -ie "s~<OPENFST>.*</OPENFST>~<OPENFST>$(esc_sed_rhs $(win_path "$OPENFST_DIR"))</OPENFST>~" variables.props
+            sed -ie "s~<OPENFSTLIB>.*</OPENFSTLIB>~<OPENFSTLIB>$(esc_sed_rhs $(win_path "${OPENFST_DIR}/build64"))</OPENFSTLIB>~" variables.props
+            cp kaldiwin_openblas.props kaldiwin.props
+            ./generate_solution.pl --vsver vs2017 --enable-openblas
+            ./get_version.pl
+            SLN_PATH_WIN=$(win_path $(find "$KALDI_DIR" -type f -name '*.sln'))
+
+            set +eo pipefail # build is expected to fail
+            travis_wait 30 sh -c "'/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin/MSBuild.exe' '$SLN_PATH_WIN' '/p:Configuration=Release|x64' | tail -n100"
+            set -eo pipefail
+            
+            git describe --always > .valid-cache
+            echo "Kaldi build successful: " $(cat .valid-cache)
+          fi
           
         # - export VERSION="$(git describe --tags --always)"
         # - cd "${TRAVIS_BUILD_DIR}/python"
