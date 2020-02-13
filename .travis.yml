@@ -115,7 +115,7 @@ jobs:
             SLN_PATH_WIN=$(win_path $(find "$KALDI_DIR" -type f -name '*.sln'))
             cat "$SLN_PATH_WIN"
 
-            travis_wait 40 '/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin/MSBuild.exe' '$SLN_PATH_WIN' -property:Configuration=Release -property:Platform=x64 -target:kaldi-online2 -maxcpucount"
+            travis_wait 40 '/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin/MSBuild.exe' '$SLN_PATH_WIN' -property:Configuration=Release -property:Platform=x64 -target:kaldi-online2 -maxcpucount
             
             git describe --always > .valid-cache
             echo "Kaldi build successful: " $(cat .valid-cache)
