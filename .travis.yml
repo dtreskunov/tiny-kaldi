@@ -57,6 +57,18 @@ jobs:
       script:
         - echo $PATH
         - |
+          find_files_with_ext() {
+            echo "Listing ${1} files in ${2}:"
+            find "$2" -type f -name "*${1}"
+          }
+        - |
+          # OpenBLAS gets installed by conan
+          cmake_property() {
+            cat "$1" | grep "set($2 " | sed -e 's/.*"\(.*\)").*/\1/'
+          }
+          export OPENBLAS_DIR=$(cmake_property "${TRAVIS_BUILD_DIR}/conan_paths.cmake" CONAN_OPENBLAS_ROOT)
+          find_files_with_ext .lib "$OPENBLAS_DIR"
+        - |
           # Build OpenFST in travis/openfst
           date
           set -eo pipefail
@@ -79,14 +91,14 @@ jobs:
             echo "Removing intermediate files:"
             find . -type f -name '*.ilk' -or -name '*.obj' -or -name '*.pdb' -ls -delete
           fi
+          find_files_with_ext .lib "$OPENFST_DIR"
         - |
-          # # Build Kaldi in travis/kaldi
+          # Build Kaldi in travis/kaldi
           date
           set -xeo pipefail
           export KALDI_DIR="${TRAVIS_BUILD_DIR}/travis/kaldi"
           mkdir -p "$KALDI_DIR"
           cd "$KALDI_DIR"
-          find . -mindepth 1 -delete # deleteme
           if [ -f .valid-cache ]; then
             echo "Reusing cached Kaldi build artifacts: " $(cat .valid-cache)
           else
@@ -105,16 +117,12 @@ jobs:
               # '/c/foo' -> 'c:/foo'
               echo $1 | sed -e 's~^/\([a-z]\)/~\1:/~i'
             }
-            cmake_property() {
-              cat "$1" | grep "set($2 " | sed -e 's/.*"\(.*\)").*/\1/'
-            }
             find_sln() {
               find "$KALDI_DIR" -type f -name '*.sln'
             }
             if [ ! -f variables.props ]; then
               cp variables.props.dev variables.props
-              CONAN_OPENBLAS_ROOT=$(cmake_property "${TRAVIS_BUILD_DIR}/conan_paths.cmake" CONAN_OPENBLAS_ROOT)
-              sed -ie "s~<OPENBLASDIR>.*</OPENBLASDIR>~<OPENBLASDIR>$(win_path "$CONAN_OPENBLAS_ROOT")</OPENBLASDIR>~" variables.props
+              sed -ie "s~<OPENBLASDIR>.*</OPENBLASDIR>~<OPENBLASDIR>$(win_path "$OPENBLAS_DIR")</OPENBLASDIR>~" variables.props
               sed -ie "s~<OPENFST>.*</OPENFST>~<OPENFST>$(win_path "$OPENFST_DIR")</OPENFST>~" variables.props
               sed -ie "s~<OPENFSTLIB>.*</OPENFSTLIB>~<OPENFSTLIB>$(win_path "${OPENFST_DIR}/build64")</OPENFSTLIB>~" variables.props
             fi
@@ -133,7 +141,7 @@ jobs:
             grep Project "$SLN"
             
             cd "$KALDI_DIR"
-            if travis_wait 10 '/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin/MSBuild.exe' \
+            if travis_wait 30 '/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin/MSBuild.exe' \
               "$(win_path "$SLN")" \
               -property:Configuration=Release \
               -property:Platform=x64 \
@@ -145,9 +153,10 @@ jobs:
               echo "Removing intermediate files:"
               find . -type f -name '*.ilk' -or -name '*.obj' -or -name '*.pdb' -ls -delete
             else
-              echo "Kaldi build unsuccessful. Keeping intermediate files. Retry the build."
+              echo "Kaldi build unsuccessful. Keeping intermediate files. Retry the build if it timed out."
             fi
           fi
+          find_files_with_ext .lib "$KALDI_DIR"
           
         # - export VERSION="$(git describe --tags --always)"
         # - cd "${TRAVIS_BUILD_DIR}/python"
