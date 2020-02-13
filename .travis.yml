@@ -54,6 +54,8 @@ jobs:
         - C:/Python36/Scripts/conan user
         - C:/Python36/Scripts/conan install travis
       script:
+        - find '/c/Program Files (x86)' -type f -iname 'msbuild.exe'
+        - echo $PATH
         - |
           # Build OpenFST in travis/openfst
           set -xeo pipefail
