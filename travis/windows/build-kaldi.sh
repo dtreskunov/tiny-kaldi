@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # Build Kaldi in travis/kaldi
-KALDI_DIR="${TRAVIS_BUILD_DIR}/travis/kaldi"
+KALDI_ROOT="${TRAVIS_BUILD_DIR}/travis/kaldi"
 
 win_path() {
 	# '/c/foo' -> 'c:/foo'
@@ -11,7 +11,7 @@ win_path() {
 }
 
 find_sln() {
-	find "$KALDI_DIR" -type f -name '*.sln'
+	find "$KALDI_ROOT" -type f -name '*.sln'
 }
 
 (
@@ -19,8 +19,8 @@ find_sln() {
 	source "$(dirname "$0")/util.sh"
 
 	check_travis_remaining_time_budget 40
-	mkdir -p "$KALDI_DIR"
-	cd "$KALDI_DIR"
+	mkdir -p "$KALDI_ROOT"
+	cd "$KALDI_ROOT"
 	if [ -f .valid-cache ]; then
 		echo "Reusing cached Kaldi build artifacts: $(cat .valid-cache)"
 	else
@@ -42,9 +42,9 @@ find_sln() {
 		
 		if [ ! -f variables.props ]; then
 			cp variables.props.dev variables.props
-			sed -ie "s~<OPENBLASDIR>.*</OPENBLASDIR>~<OPENBLASDIR>$(win_path "$OPENBLAS_DIR")</OPENBLASDIR>~" variables.props
-			sed -ie "s~<OPENFST>.*</OPENFST>~<OPENFST>$(win_path "$OPENFST_DIR")</OPENFST>~" variables.props
-			sed -ie "s~<OPENFSTLIB>.*</OPENFSTLIB>~<OPENFSTLIB>$(win_path "${OPENFST_DIR}/build64")</OPENFSTLIB>~" variables.props
+			sed -ie "s~<OPENBLASDIR>.*</OPENBLASDIR>~<OPENBLASDIR>$(win_path "$OPENBLAS_ROOT")</OPENBLASDIR>~" variables.props
+			sed -ie "s~<OPENFST>.*</OPENFST>~<OPENFST>$(win_path "$OPENFST_ROOT")</OPENFST>~" variables.props
+			sed -ie "s~<OPENFSTLIB>.*</OPENFSTLIB>~<OPENFSTLIB>$(win_path "${OPENFST_ROOT}/build64")</OPENFSTLIB>~" variables.props
 		fi
 		echo "Listing $(readlink -f variables.props):"
 		cat variables.props
@@ -61,7 +61,7 @@ find_sln() {
 		echo "Listing projects in MSBuild Solution: ${SLN}"
 		grep Project "$SLN"
 		
-		cd "$KALDI_DIR"
+		cd "$KALDI_ROOT"
 		if travis_wait 40 '/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin/MSBuild.exe' \
 			"$(win_path "$SLN")" \
 			-consoleloggerparameters:ErrorsOnly \
@@ -92,8 +92,8 @@ find_sln() {
 			echo "Kaldi build unsuccessful. Keeping intermediate files. Retry the build if it timed out."
 		fi
 	fi
-	find_files_with_ext .lib "$KALDI_DIR"
-	find_files_with_ext .h "$KALDI_DIR"
+	find_files_with_ext .lib "$KALDI_ROOT"
+	find_files_with_ext .h "$KALDI_ROOT"
 ) >&2
 
-echo $KALDI_DIR
+echo $KALDI_ROOT

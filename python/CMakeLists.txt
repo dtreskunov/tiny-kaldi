@@ -13,9 +13,26 @@ else()
 endif()
 
 set(KALDI_ROOT "$ENV{KALDI_ROOT}")
+if(NOT KALDI_ROOT)
+    set(KALDI_ROOT "${TOP_SRCDIR}/kaldi")
+end()
+message(STATUS "Looking for Kaldi in ${KALDI_ROOT})
+
+set(OPENBLAS_ROOT "$ENV{OPENBLAS_ROOT}")
+if(NOT OPENBLAS_ROOT)
+    set(OPENBLAS_ROOT "${KALDI_ROOT}/tools/OpenBLAS")
+end()
+message(STATUS "Looking for OpenBLAS in ${OPENBLAS_ROOT})
+
+set(OPENFST_ROOT "$ENV{OPENFST_ROOT}")
+if(NOT OPENFST_ROOT)
+    set(OPENFST_ROOT "${KALDI_ROOT}/tools/openfst")
+end()
+message(STATUS "Looking for OpenFST in ${OPENFST_ROOT})
+
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2 /DFST_NO_DYNAMIC_LINKING")
-    set(OPENFST_INCLUDE "${KALDI_ROOT}/../openfst/src/include")
+    set(OPENFST_INCLUDE "${OPENFST_ROOT}/src/include")
     set(VOSK_LIBRARIES
         ${KALDI_ROOT}/kaldiwin_vs2017_OPENBLAS/x64/Release/kaldi-online2.lib
         ${KALDI_ROOT}/kaldiwin_vs2017_OPENBLAS/x64/Release/kaldi-decoder.lib
@@ -32,13 +49,13 @@ if(MSVC)
         ${KALDI_ROOT}/kaldiwin_vs2017_OPENBLAS/x64/Release/kaldi-fstext.lib
         ${KALDI_ROOT}/kaldiwin_vs2017_OPENBLAS/x64/Release/kaldi-util.lib
         ${KALDI_ROOT}/kaldiwin_vs2017_OPENBLAS/x64/Release/kaldi-base.lib
-        ${KALDI_ROOT}/../openfst/build64/src/lib/Release/fst.lib
-        ${KALDI_ROOT}/../openfst/build64/src/extensions/ngram/Release/fstngram.lib
-        ${KALDI_ROOT}/../openblas/lib/libopenblas.lib
+        ${OPENFST_ROOT}/build64/src/lib/Release/fst.lib
+        ${OPENFST_ROOT}/build64/src/extensions/ngram/Release/fstngram.lib
+        ${OPENBLAS_ROOT}/lib/libopenblas.lib
     )
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -DFST_NO_DYNAMIC_LINKING")
-    set(OPENFST_INCLUDE "${KALDI_ROOT}/tools/openfst/include")
+    set(OPENFST_INCLUDE "${OPENFST_ROOT}/include")
     set(VOSK_LIBRARIES
         ${KALDI_ROOT}/src/online2/kaldi-online2.a
         ${KALDI_ROOT}/src/decoder/kaldi-decoder.a
@@ -55,9 +72,9 @@ else()
         ${KALDI_ROOT}/src/fstext/kaldi-fstext.a
         ${KALDI_ROOT}/src/util/kaldi-util.a
         ${KALDI_ROOT}/src/base/kaldi-base.a
-        ${KALDI_ROOT}/tools/openfst/lib/libfst.a
-        ${KALDI_ROOT}/tools/openfst/lib/libfstngram.a
-        ${KALDI_ROOT}/tools/OpenBLAS/libopenblas.a
+        ${OPENFST_ROOT}/lib/libfst.a
+        ${OPENFST_ROOT}/lib/libfstngram.a
+        ${OPENBLAS_ROOT}/libopenblas.a
         -lgfortran
     )
 endif()

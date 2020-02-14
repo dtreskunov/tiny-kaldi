@@ -3,14 +3,14 @@
 set -euo pipefail
 
 # Build OpenFST in travis/openfst
-OPENFST_DIR="${TRAVIS_BUILD_DIR}/travis/openfst"
+OPENFST_ROOT="${TRAVIS_BUILD_DIR}/travis/openfst"
 (
 	echo "Starting OpenFST build at $(date)"
 	source "$(dirname "$0")/util.sh"
 
 	check_travis_remaining_time_budget 40
-	mkdir -p "$OPENFST_DIR"
-	cd "$OPENFST_DIR"
+	mkdir -p "$OPENFST_ROOT"
+	cd "$OPENFST_ROOT"
 	if [ -f .valid-cache ]; then
 		echo "Reusing cached OpenFST build artifacts: $(cat .valid-cache)"
 	else
@@ -42,8 +42,8 @@ OPENFST_DIR="${TRAVIS_BUILD_DIR}/travis/openfst"
 			echo "OpenFST build unsuccessful. Keeping intermediate files. Retry the build if it timed out."
 		fi
 	fi
-	find_files_with_ext .lib "$OPENFST_DIR"
-	find_files_with_ext .h "$OPENFST_DIR"
+	find_files_with_ext .lib "$OPENFST_ROOT"
+	find_files_with_ext .h "$OPENFST_ROOT"
 ) >&2
 
-echo $OPENFST_DIR
+echo $OPENFST_ROOT
