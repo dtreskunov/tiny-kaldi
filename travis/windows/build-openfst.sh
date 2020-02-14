@@ -9,6 +9,16 @@ OPENFST_ROOT="${TRAVIS_BUILD_DIR}/travis/openfst"
 	source "$(dirname "$0")/util.sh"
 
 	check_travis_remaining_time_budget 40
+
+	if [[ "${REBUILD_OPENFST:-}" ]]; then
+		echo "REBUILD_OPENFST is set. Deleting cached files, if present..."
+		rm -rf "$OPENFST_ROOT"
+	fi
+	if [[ "${BUILD_OPENFST:-}" ]]; then
+		echo "BUILD_OPENFST is set. Deleting .valid-cache, if present..."
+		rm -f "${OPENFST_ROOT}/.valid-cache"
+	fi
+
 	mkdir -p "$OPENFST_ROOT"
 	cd "$OPENFST_ROOT"
 	if [ -f .valid-cache ]; then
