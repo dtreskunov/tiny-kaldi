@@ -37,7 +37,6 @@ OPENFST_ROOT="${TRAVIS_BUILD_DIR}/travis/openfst"
 		if [ ! -d build64 ]; then
 			echo "Generating native Makefiles..."
 			cmake -S . -B build64 \
-				-G "Visual Studio 15 2017 Win64" \
 				-DCMAKE_TOOLCHAIN_FILE="${TRAVIS_BUILD_DIR}/conan_paths.cmake" \
 				-DCMAKE_BUILD_TYPE=Release \
 				-DHAVE_FAR=ON \

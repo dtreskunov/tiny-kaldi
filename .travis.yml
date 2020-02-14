@@ -57,6 +57,7 @@ jobs:
       script:
         - echo $PATH
         - export TRAVIS_WILL_KILL_BUILD_AT=$(( $(date +%s) + 45 * 60 ))
+        - export CMAKE_GENERATOR="Visual Studio 15 2017 Win64"
         - export OPENBLAS_ROOT=$(travis/windows/build-openblas.sh)
         - export OPENFST_ROOT=$(travis/windows/build-openfst.sh)
         - export KALDI_ROOT=$(travis/windows/build-kaldi.sh)
