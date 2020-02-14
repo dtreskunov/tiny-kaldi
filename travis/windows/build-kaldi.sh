@@ -68,16 +68,21 @@ find_sln() {
 			-maxcpucount \
 			-property:Configuration=Release \
 			-property:Platform=x64 \
-			-target:kaldi-base \
-			-target:kaldi-decoder \
-			-target:kaldi-feat \
-			-target:kaldi-fstext \
-			-target:kaldi-lat \
-			-target:kaldi-lm \
-			-target:kaldi-nnet3 \
 			-target:kaldi-online2 \
-			-target:kaldi-rnnlm \
-			-target:kaldi-util
+			-target:kaldi-decoder \
+			-target:kaldi-ivector \
+			-target:kaldi-gmm \
+			-target:kaldi-nnet3 \
+			-target:kaldi-tree \
+			-target:kaldi-feat \
+			-target:kaldi-lat \
+			-target:kaldi-hmm \
+			-target:kaldi-transform \
+			-target:kaldi-cudamatrix \
+			-target:kaldi-matrix \
+			-target:kaldi-fstext \
+			-target:kaldi-util \
+			-target:kaldi-base
 		then
 			git describe --always > .valid-cache
 			echo "Kaldi build successful: " $(cat .valid-cache)
