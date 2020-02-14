@@ -36,7 +36,14 @@ find_sln() {
 		
 		if [ ! -f kaldiwin.props ]; then
 			cp kaldiwin_openblas.props kaldiwin.props
+			# Kaldi build expects to find lib/libopenblas.dll.a and include/cblas.h
+			# see https://github.com/kaldi-asr/kaldi/blob/master/windows/kaldiwin_openblas.props
+			# Conan package comes with lib/openblas.lib and include/openblas/cblas.h
+			sed -ie '/AdditionalIncludeDirectories/ s/include;/include\\openblas;/' kaldiwin_openblas.props
+			sed -ie '/AdditionalDependencies/ s/libopenblas.dll.a/openblas.lib/' kaldiwin_openblas.props
 		fi
+		echo "Listing $(readlink -f kaldiwin.props):"
+		cat kaldiwin.props
 		
 		if [ ! -f variables.props ]; then
 			cp variables.props.dev variables.props
