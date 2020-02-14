@@ -85,7 +85,7 @@ jobs:
             git clone -b winport --single-branch https://github.com/kkm000/openfst .
             curl https://patch-diff.githubusercontent.com/raw/kkm000/openfst/pull/22.patch | git apply -v
             cmake -S . -B build64 -G "Visual Studio 15 2017 Win64" -DCMAKE_BUILD_TYPE=Release "-DCMAKE_TOOLCHAIN_FILE=${TRAVIS_BUILD_DIR}/conan_paths.cmake" -DHAVE_FAR=ON -DHAVE_NGRAM=ON -DHAVE_LOOKAHEAD=ON
-            travis_wait 30 sh -c "cmake --build build64 | tail -n100"
+            travis_wait 30 sh -c "set -eo pipefail; cmake --build build64 2>&1 | tail -n100"
             git describe --always > .valid-cache
             echo "OpenFST build successful: " $(cat .valid-cache)
             echo "Removing intermediate files:"
