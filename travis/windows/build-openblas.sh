@@ -2,15 +2,21 @@
 
 set -euo pipefail
 
-# OpenBLAS gets installed by Conan so we just need to find it
-cmake_property() {
-	cat "$1" | grep "set($2 " | sed -e 's/.*"\(.*\)").*/\1/'
-}
+# Download Windows binaries from SourceForge
+# Kaldi instructions for Windows specifically say to use 32-bit builds, but I couldn't find
+# a recent 32-bit build on SourceForge
+URL="https://sourceforge.net/projects/openblas/files/v0.3.7/OpenBLAS-0.3.7-x64.zip/download"
 
-OPENBLAS_DIR=$(cmake_property "${TRAVIS_BUILD_DIR}/conan_paths.cmake" CONAN_OPENBLAS_ROOT)
+OPENBLAS_DIR="${TRAVIS_BUILD_DIR}/travis/openblas"
 (
 	echo "Starting OpenBLAS build at $(date)"
 	source "$(dirname "$0")/util.sh"
+
+	mkdir -p "$OPENBLAS_DIR"
+	cd "$OPENBLAS_DIR"
+	curl -L --fail -o openblas.zip $URL
+	unzip openblas.zip
+	rm openblas.zip
 
 	echo "OpenBLAS is installed in ${OPENBLAS_DIR}"
 	find_files_with_ext .lib "$OPENBLAS_DIR"
