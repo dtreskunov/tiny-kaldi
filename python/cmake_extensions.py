@@ -64,7 +64,6 @@ class CMakeBuildExt(build_ext):
             print('Generating native project files:', cmake_args)
             subprocess.check_call(cmake_args,
                                   env=env)
-            print('Listing files in current directory:', '\n'.join(glob('**', recursive=True)))
             build_args = [CMAKE_EXE, '--build', self.build_temp]
             print('Building:', build_args)
             subprocess.check_call(build_args,
