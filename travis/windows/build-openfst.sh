@@ -42,6 +42,7 @@ OPENFST_DIR="${TRAVIS_BUILD_DIR}/travis/openfst"
 		fi
 	fi
 	find_files_with_ext .lib "$OPENFST_DIR"
+	find_files_with_ext .h "$OPENFST_DIR"
 ) >&2
 
 echo $OPENFST_DIR

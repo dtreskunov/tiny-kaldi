@@ -13,7 +13,7 @@ OPENBLAS_DIR="${TRAVIS_BUILD_DIR}/travis/openblas"
 	source "$(dirname "$0")/util.sh"
 
 	# Conan package comes with lib/openblas.lib and include/openblas/cblas.h
-	# Kaldi build expects to find lib/openblas.lib and include/cblas.h
+	# Kaldi build expects to find lib/libopenblas.dll.a and include/cblas.h
 	# see https://github.com/kaldi-asr/kaldi/blob/master/windows/kaldiwin_openblas.props
 	CONAN_OPENBLAS_ROOT=$(cmake_property "${TRAVIS_BUILD_DIR}/conan_paths.cmake" CONAN_OPENBLAS_ROOT)
 	[ -d "$CONAN_OPENBLAS_ROOT" ]
