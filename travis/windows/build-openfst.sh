@@ -25,7 +25,14 @@ OPENFST_DIR="${TRAVIS_BUILD_DIR}/travis/openfst"
 		fi
 		if [ ! -d build64 ]; then
 			echo "Generating native Makefiles..."
-			cmake -S . -B build64 -G "Visual Studio 15 2017 Win64" -DCMAKE_CONFIGURATION_TYPES=Release "-DCMAKE_TOOLCHAIN_FILE=${TRAVIS_BUILD_DIR}/conan_paths.cmake" -DHAVE_FAR=ON -DHAVE_NGRAM=ON -DHAVE_LOOKAHEAD=ON
+			cmake -S . -B build64 \
+				-G "Visual Studio 15 2017 Win64" \
+				-DCMAKE_BUILD_TYPE=Release \
+				-DCMAKE_CONFIGURATION_TYPES=Release \
+				-DCMAKE_TOOLCHAIN_FILE="${TRAVIS_BUILD_DIR}/conan_paths.cmake" \
+				-DHAVE_FAR=ON \
+				-DHAVE_NGRAM=ON \
+				-DHAVE_LOOKAHEAD=ON
 		fi
 		if travis_wait 5 sh -c "set -eo pipefail; cmake --build build64 2>&1 | tail -n100"; then
 			git describe --always > .valid-cache

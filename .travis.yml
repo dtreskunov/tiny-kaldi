@@ -55,6 +55,7 @@ jobs:
         - C:/Python36/Scripts/conan user
         - C:/Python36/Scripts/conan install travis/windows
       script:
+        - rm -rf travis/openfst
         - echo $PATH
         - export TRAVIS_WILL_KILL_BUILD_AT=$(( $(date +%s) + 45 * 60 ))
         - export OPENBLAS_DIR=$(travis/windows/build-openblas.sh)
