@@ -20,7 +20,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/alphacep/vosk-api",
     packages=setuptools.find_packages(),
-    ext_modules=[CMakeExtension('_vosk', 'vosk')],
+    ext_modules=[CMakeExtension(name='_vosk', pkg_name='vosk', sourcedir=os.path.dirname(__file__))],
     cmdclass={'build_ext': CMakeBuildExt, 'build_py' : CMakeBuildExtFirst},
     classifiers=[
         'Programming Language :: Python :: 3',
