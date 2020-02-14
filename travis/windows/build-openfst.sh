@@ -8,7 +8,7 @@ OPENFST_DIR="${TRAVIS_BUILD_DIR}/travis/openfst"
 	echo "Starting OpenFST build at $(date)"
 	source "$(dirname "$0")/util.sh"
 
-	check_travis_remaining_time_budget_s 2400
+	check_travis_remaining_time_budget 40
 	mkdir -p "$OPENFST_DIR"
 	cd "$OPENFST_DIR"
 	if [ -f .valid-cache ]; then
@@ -34,7 +34,7 @@ OPENFST_DIR="${TRAVIS_BUILD_DIR}/travis/openfst"
 				-DHAVE_NGRAM=ON \
 				-DHAVE_LOOKAHEAD=ON
 		fi
-		if travis_wait 5 sh -c "set -eo pipefail; cmake --build build64 2>&1 | tail -n100"; then
+		if travis_wait 40 sh -c "set -eo pipefail; cmake --build build64 2>&1 | tail -n100"; then
 			git describe --always > .valid-cache
 			echo "OpenFST build successful: " $(cat .valid-cache)
 			echo "Removing intermediate files:"

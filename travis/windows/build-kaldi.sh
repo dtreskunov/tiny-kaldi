@@ -18,7 +18,7 @@ find_sln() {
 	echo "Starting Kaldi build at $(date)"
 	source "$(dirname "$0")/util.sh"
 
-	check_travis_remaining_time_budget_s 2400
+	check_travis_remaining_time_budget 40
 	mkdir -p "$KALDI_DIR"
 	cd "$KALDI_DIR"
 	if [ -f .valid-cache ]; then
@@ -60,7 +60,7 @@ find_sln() {
 		grep Project "$SLN"
 		
 		cd "$KALDI_DIR"
-		if travis_wait 50 '/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin/MSBuild.exe' \
+		if travis_wait 40 '/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin/MSBuild.exe' \
 			"$(win_path "$SLN")" \
 			-consoleloggerparameters:ErrorsOnly \
 			-maxcpucount \
