@@ -9,7 +9,7 @@ check_travis_remaining_time_budget() {
 	local remaining_s=$(($TRAVIS_WILL_KILL_BUILD_AT - $now_s))
 	local minimum_s=$(( $1 * 60 ))
     if [ $remaining_s -lt $minimum_s ]; then
-		echo "Travis CI will kill this build in ${remaining} seconds, less than required minimum of ${minimum_s}"
+		echo "Travis CI will kill this build in ${remaining_s} seconds, less than required minimum of ${minimum_s}"
 		return 2
 	fi
 }
