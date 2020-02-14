@@ -33,7 +33,7 @@ OPENFST_DIR="${TRAVIS_BUILD_DIR}/travis/openfst"
 				-DHAVE_NGRAM=ON \
 				-DHAVE_LOOKAHEAD=ON
 		fi
-		if travis_wait 40 sh -c "set -eo pipefail; cmake --build build64 2>&1 | tail -n100"; then
+		if travis_wait 40 sh -c "set -eo pipefail; cmake --build build64 --config Release 2>&1 | tail -n100"; then
 			git describe --always > .valid-cache
 			echo "OpenFST build successful: " $(cat .valid-cache)
 			echo "Removing intermediate files:"
