@@ -14,6 +14,7 @@ OPENBLAS_DIR=$(cmake_property "${TRAVIS_BUILD_DIR}/conan_paths.cmake" CONAN_OPEN
 
 	echo "OpenBLAS is installed in ${OPENBLAS_DIR}"
 	find_files_with_ext .lib "$OPENBLAS_DIR"
+	find_files_with_ext .h "$OPENBLAS_DIR"
 ) >&2
 
 echo $OPENBLAS_DIR
