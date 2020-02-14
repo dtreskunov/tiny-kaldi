@@ -55,7 +55,6 @@ jobs:
         - C:/Python36/Scripts/conan user
         - C:/Python36/Scripts/conan install travis/windows
       script:
-        - rm travis/kaldi/.valid-cache
         - echo $PATH
         - export TRAVIS_WILL_KILL_BUILD_AT=$(( $(date +%s) + 45 * 60 ))
         - export OPENBLAS_ROOT=$(travis/windows/build-openblas.sh)
