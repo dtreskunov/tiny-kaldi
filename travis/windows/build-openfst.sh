@@ -28,6 +28,7 @@ OPENFST_DIR="${TRAVIS_BUILD_DIR}/travis/openfst"
 			cmake -S . -B build64 \
 				-G "Visual Studio 15 2017 Win64" \
 				-DCMAKE_TOOLCHAIN_FILE="${TRAVIS_BUILD_DIR}/conan_paths.cmake" \
+				-DCMAKE_BUILD_TYPE=Release \
 				-DHAVE_FAR=ON \
 				-DHAVE_NGRAM=ON \
 				-DHAVE_LOOKAHEAD=ON
