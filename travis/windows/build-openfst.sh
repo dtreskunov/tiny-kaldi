@@ -22,6 +22,7 @@ OPENFST_ROOT="${TRAVIS_BUILD_DIR}/travis/openfst"
 			git clone -b winport --single-branch https://github.com/kkm000/openfst .
 			echo "Applying patches..."
 			curl https://patch-diff.githubusercontent.com/raw/kkm000/openfst/pull/22.patch | git apply -v
+			git apply -v "${TRAVIS_BUILD_DIR}/travis/windows/error-C2371-SSIZE_T-redefinition.patch"
 		fi
 		if [ ! -d build64 ]; then
 			echo "Generating native Makefiles..."
