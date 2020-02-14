@@ -143,6 +143,8 @@ jobs:
             cd "$KALDI_DIR"
             if travis_wait 30 '/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin/MSBuild.exe' \
               "$(win_path "$SLN")" \
+              -consoleloggerparameters:ErrorsOnly \
+              -maxcpucount \
               -property:Configuration=Release \
               -property:Platform=x64 \
               -target:kaldi-online2 \
@@ -159,8 +161,7 @@ jobs:
               -target:kaldi-matrix \
               -target:kaldi-fstext \
               -target:kaldi-util \
-              -target:kaldi-base \
-              -maxcpucount
+              -target:kaldi-base
             then
               git describe --always > .valid-cache
               echo "Kaldi build successful: " $(cat .valid-cache)
