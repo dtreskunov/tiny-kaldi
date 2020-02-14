@@ -88,6 +88,7 @@ find_sln() {
 		fi
 	fi
 	find_files_with_ext .lib "$KALDI_DIR"
+	find_files_with_ext .h "$KALDI_DIR"
 ) >&2
 
 echo $KALDI_DIR
