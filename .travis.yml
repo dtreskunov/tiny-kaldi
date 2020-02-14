@@ -60,11 +60,9 @@ jobs:
         - export OPENBLAS_DIR=$(travis/windows/build-openblas.sh)
         - export OPENFST_DIR=$(travis/windows/build-openfst.sh)
         - export KALDI_DIR=$(travis/windows/build-kaldi.sh)
-          
-        # - export VERSION="$(git describe --tags --always)"
-        # - cd "${TRAVIS_BUILD_DIR}/python"
-        # - export DISTUTILS_DEBUG=1
-        # - C:/Python36/python setup.py bdist_wheel
+        - export VERSION="$(git describe --tags --always)"
+        - export DISTUTILS_DEBUG=1
+        - C:/Python36/python "${TRAVIS_BUILD_DIR}/python/setup.py" bdist_wheel
 
 deploy:
   # Draft a GitHib Release for each commit
