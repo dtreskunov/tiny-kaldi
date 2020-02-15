@@ -30,6 +30,14 @@ if(NOT OPENFST_ROOT)
 endif()
 message(STATUS "Looking for OpenFST in ${OPENFST_ROOT}")
 
+# Multi-config generators use CMAKE_CONFIGURATION_TYPES as the set of
+# configurations and ignore CMAKE_BUILD_TYPE
+get_property(IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if(IS_MULTI_CONFIG)
+    set(CMAKE_CONFIGURATION_TYPES ${CMAKE_BUILD_TYPE})
+    message(STATUS "Set CMAKE_CONFIGURATION_TYPES to ${CMAKE_CONFIGURATION_TYPES} for multi-config generator")
+endif() 
+
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2 /DFST_NO_DYNAMIC_LINKING")
     set(OPENFST_INCLUDE "${OPENFST_ROOT}/src/include")
