@@ -25,6 +25,9 @@ if(NOT OPENFST_ROOT)
 endif()
 message(STATUS "Looking for OpenFST in ${OPENFST_ROOT}")
 
+find_package (Python REQUIRED COMPONENTS Interpreter Development)
+message(STATUS "Python found, Python_INCLUDE_DIRS=${Python_INCLUDE_DIRS} Python_LIBRARIES=${Python_LIBRARIES}")
+
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2 /DFST_NO_DYNAMIC_LINKING")
     set(OPENFST_INCLUDE "${OPENFST_ROOT}/src/include")
@@ -75,9 +78,6 @@ else()
         -lgfortran
     )
 endif()
-
-find_package (Python REQUIRED COMPONENTS Interpreter Development)
-message(STATUS "Python found, Python_INCLUDE_DIRS=${Python_INCLUDE_DIRS} Python_LIBRARIES=${Python_LIBRARIES}")
 
 include_directories("${TOP_SRCDIR}/src" "${KALDI_ROOT}/src" ${OPENFST_INCLUDE} ${Python_INCLUDE_DIRS})
 
