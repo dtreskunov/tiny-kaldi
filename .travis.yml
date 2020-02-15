@@ -51,7 +51,7 @@ jobs:
       install:
         - choco install swig    --no-progress -y
         - choco install python3 --no-progress -y --version 3.8.1
-        - C:/Python38/python -m pip install --upgrade pip wheel setuptools conan
+        - C:/Python38/python -m pip install conan
         - C:/Python38/Scripts/conan user
         - C:/Python38/Scripts/conan install travis/windows
       script:
@@ -64,7 +64,10 @@ jobs:
         - export KALDI_ROOT=$(travis/windows/build-kaldi.sh)
         - export VERSION="$(git describe --tags --always)"
         - export DISTUTILS_DEBUG=1
-        - C:/Python38/python "${TRAVIS_BUILD_DIR}/python/setup.py" bdist_wheel
+        - travis/windows/build-wheel.sh 3.8.1
+        - travis/windows/build-wheel.sh 3.7.6
+        - travis/windows/build-wheel.sh 3.6.8
+        - travis/windows/build-wheel.sh 3.5.4
         - mkdir "${TRAVIS_BUILD_DIR}/wheelhouse"
         - cp --verbose python/dist/* "${TRAVIS_BUILD_DIR}/wheelhouse"
 
