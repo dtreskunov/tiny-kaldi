@@ -1,16 +1,11 @@
 cmake_minimum_required(VERSION 3.10.1)
 project(vosk)
 
-set(TOP_SRCDIR "${CMAKE_SOURCE_DIR}/..")
-if("x$ENV{WHEEL_FLAGS}" STREQUAL "x")
-    find_package (Python REQUIRED COMPONENTS Interpreter Development)
-    message(STATUS "Python found, Python_INCLUDE_DIRS=${Python_INCLUDE_DIRS} Python_LIBRARIES=${Python_LIBRARIES}")
-else()
-    # docker case
-    set(Python_INCLUDE_DIRS "")
-    set(Python_LIBRARY "")
-    set(TOP_SRCDIR "/io")
+set(TOP_SRCDIR "$ENV{TOP_SRCDIR}")
+if(NOT TOP_SRCDIR)
+    set(TOP_SRCDIR "${CMAKE_SOURCE_DIR}/..")
 endif()
+message(STATUS "Assuming TOP_SRCDIR=${TOP_SRCDIR} contains src/vosk.i")
 
 set(KALDI_ROOT "$ENV{KALDI_ROOT}")
 if(NOT KALDI_ROOT)
@@ -81,8 +76,10 @@ else()
     )
 endif()
 
+find_package (Python REQUIRED COMPONENTS Interpreter Development)
+message(STATUS "Python found, Python_INCLUDE_DIRS=${Python_INCLUDE_DIRS} Python_LIBRARIES=${Python_LIBRARIES}")
+
 include_directories("${TOP_SRCDIR}/src" "${KALDI_ROOT}/src" ${OPENFST_INCLUDE} ${Python_INCLUDE_DIRS})
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} $ENV{WHEEL_FLAGS}")
 
 find_package(SWIG REQUIRED)
 include(${SWIG_USE_FILE})

@@ -9,7 +9,6 @@ for pypath in /opt/python/cp3*; do
         echo "Skipping building wheel for deprecated Python version ${pypath}"
         continue
     fi
-    export WHEEL_FLAGS=`${pypath}/bin/python3-config --cflags`
     mkdir -p /opt/wheelhouse
     mkdir -p /io/wheelhouse
 
@@ -20,7 +19,7 @@ for pypath in /opt/python/cp3*; do
     esac
 
     "${pypath}/bin/pip3" install --upgrade auditwheel
-    "${pypath}/bin/pip3" wheel /io/python -w /opt/wheelhouse
+    TOP_SRCDIR=/io "${pypath}/bin/pip3" wheel /io/python -w /opt/wheelhouse
 
     if [[ $DEFAULT_DOCKCROSS_IMAGE == *manylinux* ]]; then
         # Bundle external shared libraries into the wheels
