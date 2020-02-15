@@ -65,6 +65,13 @@ class CMakeBuildExt(build_ext):
             subprocess.check_call(cmake_args,
                                   env=env)
             build_args = [CMAKE_EXE, '--build', self.build_temp]
+
+            # This ugly hack is needed because CMake Visual Studio generator ignores CMAKE_BUILD_TYPE and creates
+            # Debug (default) and Release configurations. When building, the first one is chosen by default.
+            # For some reason, setting CMAKE_CONFIGURATION_TYPES inside CMakeLists.txt leads to error MSB8020 during build.
+            if os.name == 'nt':
+                build_args.extend(['--config', build_type])
+
             print('Building:', build_args)
             subprocess.check_call(build_args,
                                   env=env)

@@ -1,13 +1,4 @@
 cmake_minimum_required(VERSION 3.10.1)
-
-# Multi-config generators use CMAKE_CONFIGURATION_TYPES as the set of
-# configurations and ignore CMAKE_BUILD_TYPE
-get_property(IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
-if(IS_MULTI_CONFIG)
-    set(CMAKE_CONFIGURATION_TYPES ${CMAKE_BUILD_TYPE} CACHE STRING "" FORCE)
-    message(STATUS "Set CMAKE_CONFIGURATION_TYPES to ${CMAKE_CONFIGURATION_TYPES} for multi-config generator")
-endif() 
-
 project(vosk)
 
 set(TOP_SRCDIR "${CMAKE_SOURCE_DIR}/..")
