@@ -50,10 +50,10 @@ jobs:
         - find $HOME/AppData/Local/Temp/chocolatey -type f -name '*.log' -delete
       install:
         - choco install swig    --no-progress -y
-        - choco install python3 --no-progress -y --version 3.6.8 
-        - C:/Python36/python -m pip install --upgrade pip wheel setuptools conan
-        - C:/Python36/Scripts/conan user
-        - C:/Python36/Scripts/conan install travis/windows
+        - choco install python3 --no-progress -y --version 3.8.1
+        - C:/Python38/python -m pip install --upgrade pip wheel setuptools conan
+        - C:/Python38/Scripts/conan user
+        - C:/Python38/Scripts/conan install travis/windows
       script:
         - set -e
         - echo $PATH
@@ -64,7 +64,7 @@ jobs:
         - export KALDI_ROOT=$(travis/windows/build-kaldi.sh)
         - export VERSION="$(git describe --tags --always)"
         - export DISTUTILS_DEBUG=1
-        - C:/Python36/python "${TRAVIS_BUILD_DIR}/python/setup.py" bdist_wheel
+        - C:/Python38/python "${TRAVIS_BUILD_DIR}/python/setup.py" bdist_wheel
         - mkdir "${TRAVIS_BUILD_DIR}/wheelhouse"
         - cp --verbose python/dist/* "${TRAVIS_BUILD_DIR}/wheelhouse"
 
