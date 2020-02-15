@@ -4,7 +4,7 @@ project(vosk)
 set(TOP_SRCDIR "${CMAKE_SOURCE_DIR}/..")
 if("x$ENV{WHEEL_FLAGS}" STREQUAL "x")
     find_package (Python REQUIRED COMPONENTS Interpreter Development)
-    message(STATUS "Python found, Python_INCLUDE_DIRS=${Python_INCLUDE_DIRS}")
+    message(STATUS "Python found, Python_INCLUDE_DIRS=${Python_INCLUDE_DIRS} Python_LIBRARIES=${Python_LIBRARIES}")
 else()
     # docker case
     set(Python_INCLUDE_DIRS "")
@@ -52,6 +52,7 @@ if(MSVC)
         ${OPENFST_ROOT}/build64/src/lib/Release/fst.lib
         ${OPENFST_ROOT}/build64/src/extensions/ngram/Release/fstngram.lib
         ${OPENBLAS_ROOT}/lib/libopenblas.lib
+        ${Python_LIBRARIES}
     )
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -DFST_NO_DYNAMIC_LINKING")
@@ -75,6 +76,7 @@ else()
         ${OPENFST_ROOT}/lib/libfst.a
         ${OPENFST_ROOT}/lib/libfstngram.a
         ${OPENBLAS_ROOT}/libopenblas.a
+        ${Python_LIBRARIES}
         -lgfortran
     )
 endif()
