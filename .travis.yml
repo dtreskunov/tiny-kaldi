@@ -65,6 +65,8 @@ jobs:
         - export VERSION="$(git describe --tags --always)"
         - export DISTUTILS_DEBUG=1
         - C:/Python36/python "${TRAVIS_BUILD_DIR}/python/setup.py" bdist_wheel
+        - mkdir "${TRAVIS_BUILD_DIR}/wheelhouse"
+        - cp --verbose python/dist/* "${TRAVIS_BUILD_DIR}/wheelhouse"
 
 deploy:
   # Draft a GitHib Release for each commit
