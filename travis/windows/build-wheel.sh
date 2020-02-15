@@ -11,8 +11,7 @@ build_for_python_version() {
 	echo "Building wheel for Python ${version} to ${dest}..."
 	mkdir -p "${dest}"
 	choco install python3 --no-progress -y --force --version "$version"
-	"${python_root}/python" -m pip install pip wheel setuptools
-	"${python_root}/python" "${TRAVIS_BUILD_DIR}/python/setup.py" bdist_wheel --dist-dir="$dest"
+	"${python_root}/python" -m pip wheel "${TRAVIS_BUILD_DIR}/python" -w "$dest"
 	echo "Wheel built for Python ${version}!"
 }
 
