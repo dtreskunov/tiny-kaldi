@@ -16,4 +16,4 @@ build_for_python_version() {
 	echo "Wheel built for Python ${version}!"
 }
 
-build_for_python_version "$1"
+build_for_python_version "$@"
