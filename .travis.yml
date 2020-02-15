@@ -64,12 +64,10 @@ jobs:
         - export KALDI_ROOT=$(travis/windows/build-kaldi.sh)
         - export VERSION="$(git describe --tags --always)"
         - export DISTUTILS_DEBUG=1
-        - travis/windows/build-wheel.sh 3.8.1
-        - travis/windows/build-wheel.sh 3.7.6
-        - travis/windows/build-wheel.sh 3.6.8
-        - travis/windows/build-wheel.sh 3.5.4
-        - mkdir "${TRAVIS_BUILD_DIR}/wheelhouse"
-        - cp --verbose python/dist/* "${TRAVIS_BUILD_DIR}/wheelhouse"
+        - travis/windows/build-wheel.sh 3.8.1 travis/wheelhouse
+        - travis/windows/build-wheel.sh 3.7.6 travis/wheelhouse
+        - travis/windows/build-wheel.sh 3.6.8 travis/wheelhouse
+        - travis/windows/build-wheel.sh 3.5.4 travis/wheelhouse
 
 deploy:
   # Draft a GitHib Release for each commit
