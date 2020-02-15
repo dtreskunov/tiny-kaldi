@@ -10,6 +10,8 @@ version = os.getenv("VERSION", "unknown")
 if not re.match(r'^\d', version):
     version = '0.' + version
 
+where = os.path.dirname(__file__)
+
 setuptools.setup(
     name="vosk",
     version=version,
@@ -19,8 +21,8 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/alphacep/vosk-api",
-    packages=setuptools.find_packages(),
-    ext_modules=[CMakeExtension(name='_vosk', pkg_name='vosk', sourcedir=os.path.dirname(__file__))],
+    packages=setuptools.find_packages(where=where),
+    ext_modules=[CMakeExtension(name='_vosk', pkg_name='vosk', sourcedir=where)],
     cmdclass={'build_ext': CMakeBuildExt, 'build_py' : CMakeBuildExtFirst},
     classifiers=[
         'Programming Language :: Python :: 3',
