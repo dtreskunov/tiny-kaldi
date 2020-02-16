@@ -40,7 +40,7 @@ class CMakeBuildExt(build_ext):
     You can add cmake args with the CMAKE_COMMON_VARIABLES environment variable
     """
 
-    def build_extension(self, ext):
+    def build_extension(self, ext: Extension):
         check_for_cmake()
         if isinstance(ext, CMakeExtension):
             output_dir = os.path.abspath(
@@ -62,9 +62,9 @@ class CMakeBuildExt(build_ext):
                  if x])
 
             env = os.environ.copy()
-            print('Generating native project files:', cmake_args)
-            subprocess.check_call(cmake_args,
-                                  env=env)
+            self.announce(f'Generating native project files: {cmake_args}', level=3)
+            subprocess.check_call(cmake_args, env=env)
+
             build_args = [CMAKE_EXE, '--build', self.build_temp]
 
             # This ugly hack is needed because CMake Visual Studio generator ignores CMAKE_BUILD_TYPE and creates
@@ -73,84 +73,19 @@ class CMakeBuildExt(build_ext):
             if os.name == 'nt':
                 build_args.extend(['--config', build_type])
 
-            print('Building:', build_args)
-            subprocess.check_call(build_args,
-                                  env=env)
-            print()
+            self.announce(f'Building: {build_args}', level=3)
+            subprocess.check_call(build_args, env=env)
+
+            libs = sum([
+                glob(os.path.join(self.build_temp, pattern), recursive=True)
+                for pattern in ('**/*.so', '**/*.pyd')
+            ], [])
+            extension_path = self.get_ext_fullpath(ext.name)
+            self.announce(f'Build created {libs} in {self.build_temp}; they will be moved to {extension_path}', level=3)
+            for lib in libs:
+                shutil.move(lib, extension_path)
         else:
             super().build_extension(ext)
 
 
-
-class CMakeBuildExtFirst(build_py):
-    def run(self):
-        self.run_command("build_ext")
-        return super().run()
-
-class InstallCMakeLibs(install_lib):
-    """
-    Get the libraries from the parent distribution, use those as the outfiles
-
-    Skip building anything; everything is already built, forward libraries to
-    the installation step
-    """
-
-    def run(self):
-        """
-        Copy libraries from the bin directory and place them as appropriate
-        """
-        # We have already built the libraries in the previous build_ext step
-        self.skip_build = True
-        bin_dir = self.distribution.bin_dir
-
-        # Depending on the files that are generated from your cmake
-        # build chain, you may need to change the below code, such that
-        # your files are moved to the appropriate location when the installation
-        # is run
-        self.announce(f"Moving library files bin_dir={bin_dir} build_dir={self.build_dir}, install_dir={self.install_dir}", level=3)
-        self.announce('.pyd files in bin_dir: ' + '\n'.join(glob(bin_dir + '/**/*.pyd')), level=3)
-
-        # libs = [os.path.join(bin_dir, _lib) for _lib in 
-        #         os.listdir(bin_dir) if 
-        #         os.path.isfile(os.path.join(bin_dir, _lib)) and 
-        #         os.path.splitext(_lib)[1] in [".dll", ".so"]
-        #         and not (_lib.startswith("python") or _lib.startswith(PACKAGE_NAME))]
-
-        # for lib in libs:
-
-        #     shutil.move(lib, os.path.join(self.build_dir,
-        #                                   os.path.basename(lib)))
-
-        # Mark the libs for installation, adding them to 
-        # distribution.data_files seems to ensure that setuptools' record 
-        # writer appends them to installed-files.txt in the package's egg-info
-        #
-        # Also tried adding the libraries to the distribution.libraries list, 
-        # but that never seemed to add them to the installed-files.txt in the 
-        # egg-info, and the online recommendation seems to be adding libraries 
-        # into eager_resources in the call to setup(), which I think puts them 
-        # in data_files anyways. 
-        # 
-        # What is the best way?
-
-        # These are the additional installation files that should be
-        # included in the package, but are resultant of the cmake build
-        # step; depending on the files that are generated from your cmake
-        # build chain, you may need to modify the below code
-
-        # self.distribution.data_files = [os.path.join(self.install_dir, 
-        #                                              os.path.basename(lib))
-        #                                 for lib in libs]
-
-        # Must be forced to run after adding the libs to data_files
-
-        # self.distribution.run_command("install_data")
-
-        super().run()
-    
-    def get_outputs(self):
-        res = super().get_outputs()
-        self.announce(f"get_outputs: returning {res}")
-        return res
-
-__all__ = ['CMakeBuildExt', 'CMakeExtension', 'CMakeBuildExtFirst', 'InstallCMakeLibs']
+__all__ = ['CMakeBuildExt', 'CMakeExtension', 'CMakeBuildExtFirst']
