@@ -62,7 +62,7 @@ class CMakeBuildExt(build_ext):
                  if x])
 
             env = os.environ.copy()
-            self.announce(f'Generating native project files: {cmake_args}', level=3)
+            self.announce('Generating native project files: {}'.format(cmake_args), level=3)
             subprocess.check_call(cmake_args, env=env)
 
             build_args = [CMAKE_EXE, '--build', self.build_temp]
