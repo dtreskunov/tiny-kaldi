@@ -25,11 +25,16 @@ if(NOT OPENFST_ROOT)
 endif()
 message(STATUS "Looking for OpenFST in ${OPENFST_ROOT}")
 
-find_package (Python REQUIRED COMPONENTS Interpreter Development)
-message(STATUS "Python found, Python_INCLUDE_DIRS=${Python_INCLUDE_DIRS} Python_LIBRARIES=${Python_LIBRARIES}")
+find_package (Python COMPONENTS Development)
+if(Python_Development_FOUND)
+    message(STATUS "Python found, Python_INCLUDE_DIRS=${Python_INCLUDE_DIRS} Python_LIBRARIES=${Python_LIBRARIES}")
+else()
+    message(STATUS "Python NOT found. Build will fail unless correct compile/link flags are passed manually.")
+    add_compile_options("$ENV{PYTHON_CFLAGS}")
+endif()
 
 if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2 /DFST_NO_DYNAMIC_LINKING")
+    add_compile_options(/O2 /DFST_NO_DYNAMIC_LINKING)
     set(OPENFST_INCLUDE "${OPENFST_ROOT}/src/include")
     set(VOSK_LIBRARIES
         ${KALDI_ROOT}/kaldiwin_vs2017_OPENBLAS/x64/Release/kaldi-online2.lib
@@ -53,7 +58,7 @@ if(MSVC)
         ${Python_LIBRARIES}
     )
 else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -DFST_NO_DYNAMIC_LINKING")
+    add_compile_options(-std=c++11 -O3 -DFST_NO_DYNAMIC_LINKING)
     set(OPENFST_INCLUDE "${OPENFST_ROOT}/include")
     set(VOSK_LIBRARIES
         ${KALDI_ROOT}/src/online2/kaldi-online2.a
