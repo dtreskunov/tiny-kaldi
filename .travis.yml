@@ -51,7 +51,7 @@ jobs:
       install:
         - choco install swig    --no-progress -y
         - choco install python3 --no-progress -y --version 3.8.1
-        - choco install microsoft-build-tools --no-progress -y --version=14.0.25420.1
+        - choco install microsoft-build-tools --no-progress -y --force --version=14.0.25420.1
         - C:/Python38/python -m pip install conan
         - C:/Python38/Scripts/conan user
         - C:/Python38/Scripts/conan install travis/windows
