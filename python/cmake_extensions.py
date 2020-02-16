@@ -62,7 +62,7 @@ class CMakeBuildExt(build_ext):
                  if x])
 
             env = os.environ.copy()
-            self.announce('Generating native project files: {}'.format(cmake_args), level=3)
+            self.announce('Generating native project files: {}'.format(cmake_args), level=4)
             subprocess.check_call(cmake_args, env=env)
 
             build_args = [CMAKE_EXE, '--build', self.build_temp]
@@ -73,17 +73,17 @@ class CMakeBuildExt(build_ext):
             if os.name == 'nt':
                 build_args.extend(['--config', build_type])
 
-            self.announce('Building: {}'.format(build_args), level=3)
+            self.announce('Building: {}'.format(build_args), level=4)
             subprocess.check_call(build_args, env=env)
 
             libs = sum([
                 glob(os.path.join(self.build_temp, pattern), recursive=True)
                 for pattern in ('**/*.so', '**/*.pyd')
             ], [])
-            extension_path = self.get_ext_fullpath(ext.name)
-            self.announce('Build created {} in {}; they will be moved to {}'.format(libs, self.build_temp, extension_path), level=3)
+            self.announce('Build created {} in {}; they will be copied to {}'.format(libs, self.build_temp, output_dir), level=4)
+            os.makedirs(output_dir, exist_ok=True)
             for lib in libs:
-                shutil.move(lib, extension_path)
+                shutil.copy(lib, output_dir)
         else:
             super().build_extension(ext)
 
