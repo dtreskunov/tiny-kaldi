@@ -58,6 +58,7 @@ jobs:
       script:
         - set -e
         - echo $PATH
+        - find '/c/Program Files (x86)/MSBuild' -name 'Microsoft.Cpp.Default.props'
         - export TRAVIS_WILL_KILL_BUILD_AT=$(( $(date +%s) + 45 * 60 ))
         - export CMAKE_GENERATOR="Visual Studio 14 2015 Win64"
         - export OPENBLAS_ROOT=$(travis/windows/build-openblas.sh)
