@@ -7,6 +7,8 @@ git:
 language: shell # https://config.travis-ci.com/ref/language
 
 jobs:
+  exclude:
+    - os: linux
   include:
     - &linux_job
       env: DOCKCROSS_IMAGE=manylinux2010-x64 OPENBLAS_TARGET=NEHALEM
@@ -56,16 +58,16 @@ jobs:
         - set -e
         - echo $PATH
         - export TRAVIS_WILL_KILL_BUILD_AT=$(( $(date +%s) + 45 * 60 ))
-        - export CMAKE_GENERATOR="Visual Studio 15 2017 Win64"
+        - export CMAKE_GENERATOR="Visual Studio 14 2015 Win64"
         - export OPENBLAS_ROOT=$(travis/windows/build-openblas.sh)
         - export OPENFST_ROOT=$(travis/windows/build-openfst.sh)
         - export KALDI_ROOT=$(travis/windows/build-kaldi.sh)
         - export VERSION="$(git describe --tags --always)"
         - export DISTUTILS_DEBUG=1
         - travis/windows/build-wheel.sh 3.8.1 wheelhouse
-        - travis/windows/build-wheel.sh 3.7.6 wheelhouse
-        - travis/windows/build-wheel.sh 3.6.8 wheelhouse
-        - travis/windows/build-wheel.sh 3.5.4 wheelhouse
+        # - travis/windows/build-wheel.sh 3.7.6 wheelhouse
+        # - travis/windows/build-wheel.sh 3.6.8 wheelhouse
+        # - travis/windows/build-wheel.sh 3.5.4 wheelhouse
 
 deploy:
   # Draft a GitHib Release for each commit
