@@ -88,4 +88,10 @@ class CMakeBuildExt(build_ext):
             super().build_extension(ext)
 
 
+class CMakeBuildExtFirst(build_py):
+    def run(self):
+        self.run_command("build_ext")
+        return super().run()
+
+
 __all__ = ['CMakeBuildExt', 'CMakeExtension', 'CMakeBuildExtFirst']
