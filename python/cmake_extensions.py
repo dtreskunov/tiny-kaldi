@@ -73,7 +73,7 @@ class CMakeBuildExt(build_ext):
             if os.name == 'nt':
                 build_args.extend(['--config', build_type])
 
-            self.announce(f'Building: {build_args}', level=3)
+            self.announce('Building: {}'.format(build_args), level=3)
             subprocess.check_call(build_args, env=env)
 
             libs = sum([
@@ -81,7 +81,7 @@ class CMakeBuildExt(build_ext):
                 for pattern in ('**/*.so', '**/*.pyd')
             ], [])
             extension_path = self.get_ext_fullpath(ext.name)
-            self.announce(f'Build created {libs} in {self.build_temp}; they will be moved to {extension_path}', level=3)
+            self.announce('Build created {} in {}; they will be moved to {}'.format(libs, self.build_temp, extension_path), level=3)
             for lib in libs:
                 shutil.move(lib, extension_path)
         else:
