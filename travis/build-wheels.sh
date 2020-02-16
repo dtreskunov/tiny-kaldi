@@ -21,7 +21,7 @@ for pypath in /opt/python/cp3*; do
     esac
 
     "${pypath}/bin/pip3" install --upgrade auditwheel
-    "${pypath}/bin/pip3" wheel /io/python -w /opt/wheelhouse -v
+    "${pypath}/bin/pip3" wheel /io/python -w /opt/wheelhouse
 
     if [[ $DEFAULT_DOCKCROSS_IMAGE == *manylinux* ]]; then
         # Bundle external shared libraries into the wheels

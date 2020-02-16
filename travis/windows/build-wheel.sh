@@ -12,7 +12,7 @@ build_for_python_version() {
 	mkdir -p "${dest}"
 	choco install python3 --no-progress -y --force --version "$version"
 	"${python_root}/python" -m pip install --upgrade pip wheel setuptools
-	TOP_SRCDIR="$TRAVIS_BUILD_DIR" "${python_root}/python" -m pip wheel "${TRAVIS_BUILD_DIR}/python" --wheel-dir "$dest" -v
+	TOP_SRCDIR="$TRAVIS_BUILD_DIR" "${python_root}/python" -m pip wheel "${TRAVIS_BUILD_DIR}/python" --wheel-dir "$dest"
 	echo "Wheel built for Python ${version}!"
 }
 
