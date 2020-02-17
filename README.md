@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/dtreskunov/vosk-api.svg?branch=master)](https://travis-ci.com/dtreskunov/vosk-api)
+[![Build Status](https://travis-ci.org/dtreskunov/vosk-api.svg?branch=master)](https://travis-ci.org/dtreskunov/vosk-api)
 
 Language bindings for Vosk and Kaldi to access high-quality speech recognition algorithms
 from various languages and on various platforms.
