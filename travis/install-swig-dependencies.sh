@@ -12,18 +12,21 @@ set -xeuo pipefail
 #
 # Neither type of image has the PCRE library required for building SWIG
 
+# TravisCI kills jobs after they exceed 20000 lines of output
+KEEP_LAST_N_LINES=100
+
 build_python() {
 	git_tag=$1
 	two_digit_version=$(echo "${git_tag}" | sed -e 's:[^0-9]::g' | head -c 2)
 	prefix="/opt/python/cp${two_digit_version}-cp${two_digit_version}m"
 	tmpdir=$(mktemp -d)
 	cd $tmpdir
-	wget https://github.com/python/cpython/archive/${git_tag}.zip
-	unzip *.zip
+	wget -q https://github.com/python/cpython/archive/${git_tag}.zip
+	unzip -q *.zip
 	cd */
-	./configure --prefix="$prefix"
-	make -j $(nproc)
-	make install
+	./configure --prefix="$prefix" --with-openssl=$CROSS_ROOT
+	make -j $(nproc) 2>&1 | tail -n $KEEP_LAST_N_LINES
+	make install 2>&1 | tail -n $KEEP_LAST_N_LINES
 	cd /
 	rm -rf $tmpdir
 }
@@ -36,8 +39,8 @@ build_deb_src() {
 	apt-get source $pkg
 	cd */
 	./configure --prefix=$CROSS_ROOT $extra_config
-	make -j $(nproc)
-	make install
+	make -j $(nproc) 2>&1 | tail -n $KEEP_LAST_N_LINES
+	make install 2>&1 | tail -n $KEEP_LAST_N_LINES
 	cd /
 	rm -rf $tmpdir
 }
@@ -48,8 +51,8 @@ build_libssl() {
 	apt-get source libssl-dev
 	cd */
 	CROSS_COMPILE= MACHINE="${CROSS_TRIPLE/-*/}" ./config --prefix=$CROSS_ROOT
-	make -j $(nproc)
-	make install
+	make -j $(nproc) 2>&1 | tail -n $KEEP_LAST_N_LINES
+	make install 2>&1 | tail -n $KEEP_LAST_N_LINES
 	cd /
 	rm -rf $tmpdir
 }
@@ -67,7 +70,7 @@ else
 	apt-get update
 	apt-get install -y --no-install-recommends unzip
 	build_deb_src zlib1g
-	build_deb_src libpcre3 --enable-shared=no
+	build_deb_src libpcre3 --enable-shared=no --host=$CROSS_TRIPLE
 	build_deb_src libffi --host=$CROSS_TRIPLE
 	build_libssl
 	build_python v3.7.6
