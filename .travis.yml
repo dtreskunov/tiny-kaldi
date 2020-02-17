@@ -51,14 +51,12 @@ jobs:
       install:
         - choco install swig    --no-progress -y
         - choco install python3 --no-progress -y --version 3.8.1
-        - choco install microsoft-build-tools --no-progress -y --force --version=14.0.25420.1
         - C:/Python38/python -m pip install conan
         - C:/Python38/Scripts/conan user
         - C:/Python38/Scripts/conan install travis/windows
       script:
         - set -e
         - echo $PATH
-        - export VCTargetsPath="C:\\Program Files (x86)\\MSBuild\\Microsoft.Cpp\\v4.0\\v140"
         - export TRAVIS_WILL_KILL_BUILD_AT=$(( $(date +%s) + 45 * 60 ))
         - export CMAKE_GENERATOR="Visual Studio 14 2015 Win64"
         - export OPENBLAS_ROOT=$(travis/windows/build-openblas.sh)
