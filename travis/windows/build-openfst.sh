@@ -39,11 +39,12 @@ OPENFST_ROOT="${TRAVIS_BUILD_DIR}/travis/openfst"
 			cmake -S . -B build64 \
 				-DCMAKE_TOOLCHAIN_FILE="${TRAVIS_BUILD_DIR}/conan_paths.cmake" \
 				-DCMAKE_BUILD_TYPE=Release \
+				-DCMAKE_CXX_FLAGS="/w" \
 				-DHAVE_FAR=ON \
 				-DHAVE_NGRAM=ON \
 				-DHAVE_LOOKAHEAD=ON
 		fi
-		if travis_wait 40 sh -c "set -eo pipefail; cmake --build build64 --config Release 2>&1 | tail -n100"; then
+		if travis_wait 40 cmake --build build64 --config Release; then
 			git describe --always > .valid-cache
 			echo "OpenFST build successful: " $(cat .valid-cache)
 			echo "Removing intermediate files:"
