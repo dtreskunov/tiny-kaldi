@@ -39,7 +39,7 @@ OPENFST_ROOT="${TRAVIS_BUILD_DIR}/travis/openfst"
 			cmake -S . -B build64 \
 				-DCMAKE_TOOLCHAIN_FILE="${TRAVIS_BUILD_DIR}/conan_paths.cmake" \
 				-DCMAKE_BUILD_TYPE=Release \
-				-DCMAKE_CXX_FLAGS:STRING="/w" \
+				-DCMAKE_CXX_FLAGS:STRING=" /W0" \
 				-DHAVE_FAR=ON \
 				-DHAVE_NGRAM=ON \
 				-DHAVE_LOOKAHEAD=ON
