@@ -6,7 +6,7 @@ import json
 import os
 import wave
 
-if not os.path.exists("model"):
+if not os.path.exists("model-en"):
     print ("Please download the model from https://github.com/alphacep/kaldi-android-demo/releases and unpack as 'model' in the current folder.")
     exit (1)
 
@@ -19,7 +19,7 @@ assert 1 == wf.getnchannels()
 assert 2 == wf.getsampwidth()
 assert 'NONE' == wf.getcomptype()
 
-model = Model("model")
+model = Model("model-en")
 if model.GetSampleFrequency() < wf.getframerate():
     print('Model sample frequency is lower than WAV file. Enabling downsampling.')
     model.SetAllowDownsample(True)
