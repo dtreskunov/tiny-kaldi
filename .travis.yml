@@ -53,7 +53,6 @@ jobs:
         - C:/Python38/Scripts/conan user
         - C:/Python38/Scripts/conan install travis/windows
       script:
-        - set -e
         - echo $PATH
         - export TRAVIS_WILL_KILL_BUILD_AT=$(( $(date +%s) + 45 * 60 ))
         - export CMAKE_GENERATOR="Visual Studio 15 2017 Win64"
@@ -66,6 +65,7 @@ jobs:
         - travis/windows/build-wheel.sh 3.7.6 wheelhouse
         - travis/windows/build-wheel.sh 3.6.8 wheelhouse
         - travis/windows/build-wheel.sh 3.5.4 wheelhouse
+        - 'true'
 
 deploy:
   # Draft a GitHib Release for each commit
