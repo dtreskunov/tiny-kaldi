@@ -57,11 +57,15 @@ if(MSVC)
         ${KALDI_ROOT}/kaldiwin_vs2017_OPENBLAS/x64/Release/kaldi-base.lib
         ${OPENFST_ROOT}/build64/src/lib/Release/fst.lib
         ${OPENFST_ROOT}/build64/src/extensions/ngram/Release/fstngram.lib
+        ${OPENBLAS_ROOT}/lib/libopenblas.lib
+        ${Python_LIBRARIES}
+    )
+    set(MINGW_ROOT "$ENV{MINGW_ROOT}")
+    set(ADDITIONAL_LIBRARIES
         ${OPENBLAS_ROOT}/bin/libopenblas.dll
         ${MINGW_ROOT}/mingw64_dll/libgcc_s_seh-1.dll
         ${MINGW_ROOT}/mingw64_dll/libgfortran-3.dll
         ${MINGW_ROOT}/mingw64_dll/libquadmath-0.dll
-        ${Python_LIBRARIES}
     )
 else()
     add_compile_options(-std=c++11 -O3 -DFST_NO_DYNAMIC_LINKING)
@@ -103,8 +107,8 @@ swig_link_libraries(vosk ${VOSK_LIBRARIES})
 
 set_target_properties(_vosk PROPERTIES LINK_FLAGS_RELEASE -s)
 
-# copy DLLs included in VOSK_LIBRARIES to CMAKE_LIBRARY_OUTPUT_DIRECTORY
-file(INSTALL $VOSK_LIBRARIES
+# copy DLLs included in ADDITIONAL_LIBRARIES to CMAKE_LIBRARY_OUTPUT_DIRECTORY
+file(INSTALL $ADDITIONAL_LIBRARIES
     DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} FILES_MATCHING
     PATTERN "*.so"
     PATTERN "*.dll"
