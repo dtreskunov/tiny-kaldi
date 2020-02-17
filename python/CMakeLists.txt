@@ -37,7 +37,7 @@ endif()
 message(STATUS "Looking for OpenFST in ${OPENFST_ROOT}")
 
 if(MSVC)
-    add_compile_options(/O2 /DFST_NO_DYNAMIC_LINKING)
+    add_compile_options(/W1 /O2 /DFST_NO_DYNAMIC_LINKING)
     set(OPENFST_INCLUDE "${OPENFST_ROOT}/src/include")
     set(VOSK_LIBRARIES
         ${KALDI_ROOT}/kaldiwin_vs2017_OPENBLAS/x64/Release/kaldi-online2.lib
@@ -107,6 +107,4 @@ swig_link_libraries(vosk ${VOSK_LIBRARIES})
 
 set_target_properties(_vosk PROPERTIES LINK_FLAGS_RELEASE -s)
 
-# copy DLLs included in ADDITIONAL_LIBRARIES to CMAKE_LIBRARY_OUTPUT_DIRECTORY
-message(STATUS "Will install the following files to ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}: ${ADDITIONAL_LIBRARIES}")
 file(INSTALL ${ADDITIONAL_LIBRARIES} DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
