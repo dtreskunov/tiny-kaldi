@@ -27,6 +27,7 @@ __pycache__
 python/dist
 venv/
 python/example/model*
+.eggs/*
 
 # Java
 *.so

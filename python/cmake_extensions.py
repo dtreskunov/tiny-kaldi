@@ -27,7 +27,6 @@ class CMakeExtension(Extension):
     """
 
     def __init__(self, name, pkg_name, sourcedir=''):
-        check_for_cmake()
         Extension.__init__(self, name, sources=[])
         self.sourcedir = os.path.abspath(sourcedir)
         self.pkg_name = pkg_name
