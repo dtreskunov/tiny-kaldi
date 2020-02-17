@@ -68,7 +68,11 @@ if(MSVC)
         ${MINGW_ROOT}/mingw64_dll/libquadmath-0.dll
     )
 else()
-    add_compile_options(-std=c++11 -O3 -DFST_NO_DYNAMIC_LINKING)
+    add_compile_options(-std=c++11 -O3 -DFST_NO_DYNAMIC_LINKING
+        -Wno-sign-compare
+        -Wno-unused-local-typedefs
+        -Wno-unused-variable
+    )
     set(OPENFST_INCLUDE "${OPENFST_ROOT}/include")
     set(VOSK_LIBRARIES
         ${KALDI_ROOT}/src/online2/kaldi-online2.a
