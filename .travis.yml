@@ -31,7 +31,7 @@ jobs:
         - date; docker build --tag ${HELPER_IMAGE} --cache-from ${HELPER_IMAGE}.s1 --cache-from ${HELPER_IMAGE}.s2 --cache-from ${HELPER_IMAGE} ${DOCKER_BUILD_ARGS} travis
         - date; docker push ${HELPER_IMAGE}
         # build wheels
-        - date; docker run --rm -v "$(pwd):/io" -e "VERSION=$VERSION" ${HELPER_IMAGE} /io/travis/build-wheels.sh
+        - date; docker run --rm -v "$(pwd):/io" ${HELPER_IMAGE} /io/travis/build-wheels.sh
     - <<: *linux_job
       env: DOCKCROSS_IMAGE=linux-armv6 OPENBLAS_TARGET=ARMV6
     - <<: *linux_job
@@ -60,10 +60,13 @@ jobs:
         - export OPENFST_ROOT=$(travis/windows/build-openfst.sh)
         - export KALDI_ROOT=$(travis/windows/build-kaldi.sh)
         - export VERSION="$(git describe --tags --always)"
-        - travis/windows/build-wheel.sh 3.8.1 wheelhouse
-        - travis/windows/build-wheel.sh 3.7.6 wheelhouse
-        - travis/windows/build-wheel.sh 3.6.8 wheelhouse
-        - travis/windows/build-wheel.sh 3.5.4 wheelhouse
+        - build-wheel.sh /c/Python38/python "$TRAVIS_BUILD_DIR" wheelhouse
+        - choco install python3 --no-progress -y --force --version 3.7.6
+        - travis/build-wheel.sh /c/Python37/python "$TRAVIS_BUILD_DIR" wheelhouse
+        - choco install python3 --no-progress -y --force --version 3.6.8
+        - travis/build-wheel.sh /c/Python36/python "$TRAVIS_BUILD_DIR" wheelhouse
+        - choco install python3 --no-progress -y --force --version 3.5.4
+        - travis/build-wheel.sh /c/Python35/python "$TRAVIS_BUILD_DIR" wheelhouse
         - 'true'
 
 deploy:

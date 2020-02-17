@@ -6,9 +6,12 @@ from cmake_extensions import *
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+version = os.getenv("VERSION")
+
 setuptools.setup(
     name="vosk",
     author="Alpha Cephei Inc",
+    version=version,
     author_email="contact@alphacephei.com",
     description="API for Kaldi and Vosk",
     long_description=long_description,
@@ -26,6 +29,6 @@ setuptools.setup(
         'Topic :: Software Development :: Libraries :: Python Modules'
     ],
     python_requires='>=3.5',
-    use_scm_version=True,
+    use_scm_version=version is None,
     setup_requires=['setuptools_scm'],
 )
