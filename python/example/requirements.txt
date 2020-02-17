@@ -1,3 +1,4 @@
-pyaudio
+numpy
+pyaudio # on Windows, download the binary from https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio
 vosk
 wheel
