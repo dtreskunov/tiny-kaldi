@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/dtreskunov/tiny-kaldi.svg?branch=master)](https://travis-ci.com/dtreskunov/tiny-kaldi)
+[![Build Status](https://travis-ci.com/dtreskunov/vosk-api.svg?branch=master)](https://travis-ci.com/dtreskunov/vosk-api)
 
 Language bindings for Vosk and Kaldi to access high-quality speech recognition algorithms
 from various languages and on various platforms.
@@ -14,12 +14,14 @@ This is a fork of [alphacep/vosk-api](https://github.com/alphacep/vosk-api) aime
 providing timely releases and minor additions to the upstream project. I intend to provide
 PRs for my changes, hoping that they would get merged so that this fork can be archived.
 
-You can see the list of changes in this fork using [GitHub compare view](https://github.com/alphacep/vosk-api/compare/master...dtreskunov:master).
+**Changes:** the list of changes in this fork can be seen using [GitHub compare view](https://github.com/alphacep/vosk-api/compare/master...dtreskunov:master).
 
-**Releases** While the upstream project uses three-number version strings, this fork
-appends a fourth number so as to indicate which *vosk-api* release it's based on and not
-clash with the upstream releases. You can download the latest release on the
+**Releases:** the latest release can be downloaded from the
 [Releases](https://github.com/dtreskunov/tiny-kaldi/releases) page.
+
+While the upstream project uses three-number version strings, this fork
+appends a fourth number so as to indicate which *vosk-api* release it's based on and not
+clash with the upstream releases.
 
 **Development Plans**
 - [x] Create automatic build pipeline
