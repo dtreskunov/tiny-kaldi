@@ -59,8 +59,7 @@ jobs:
         - export OPENBLAS_ROOT=$(travis/windows/build-openblas.sh)
         - export OPENFST_ROOT=$(travis/windows/build-openfst.sh)
         - export KALDI_ROOT=$(travis/windows/build-kaldi.sh)
-        - export VERSION="$(git describe --tags --always)"
-        - build-wheel.sh /c/Python38/python "$TRAVIS_BUILD_DIR" wheelhouse
+        - travis/build-wheel.sh /c/Python38/python "$TRAVIS_BUILD_DIR" wheelhouse
         - choco install python3 --no-progress -y --force --version 3.7.6
         - travis/build-wheel.sh /c/Python37/python "$TRAVIS_BUILD_DIR" wheelhouse
         - choco install python3 --no-progress -y --force --version 3.6.8
@@ -77,7 +76,7 @@ deploy:
     token: $GITHUB_TOKEN
     file: wheelhouse/*
     draft: true
-    name: $VERSION
+    name: $(git describe --tags --always)
     tag_name: $TRAVIS_TAG
     on:
       all_branches: true
