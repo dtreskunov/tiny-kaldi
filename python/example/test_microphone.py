@@ -6,6 +6,7 @@ import sys
 from pyaudio import PyAudio, Stream, paInt16
 from contextlib import contextmanager, ExitStack
 from typing import Generator, Iterator
+from vosk import Model, KaldiRecognizer, SpkModel
 
 
 @contextmanager
@@ -28,13 +29,13 @@ def _pyaudio_open_stream(p: PyAudio, *args, **kwargs) -> Iterator[Stream]:
         s.close()
 
 
-def listen(model_path: str, speech_chunk_sec: float = 0.5, buffer_sec: float = 1):
+def listen(model: Model, spk_model: SpkModel = None, speech_chunk_sec: float = 0.5, buffer_sec: float = 1):
     with ExitStack() as stack:
-        from vosk import Model, KaldiRecognizer
-        model = Model(model_path)
         rate = model.SampleFrequency()
-        rec = KaldiRecognizer(model, rate)
-
+        if spk_model:
+            rec = KaldiRecognizer(model, spk_model, rate)
+        else:
+            rec = KaldiRecognizer(model, rate)
         p = stack.enter_context(_pyaudio())
         s = stack.enter_context(_pyaudio_open_stream(p,
                                                      format=paInt16,
@@ -56,10 +57,14 @@ def main(argv):
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        'model', help='Model path. Download and extract a model from https://github.com/alphacep/kaldi-android-demo/releases')
+        '--model', help='Model path. Download and extract a model from https://github.com/alphacep/kaldi-android-demo/releases',
+        type=lambda path: Model(path))
+    parser.add_argument(
+        '--spk-model', help='Speaker model path. Download and extract a model from https://github.com/alphacep/kaldi-android-demo/releases',
+        type=lambda path: SpkModel(path))
     args = parser.parse_args()
     try:
-        listen(args.model)
+        listen(args.model, args.spk_model)
     except KeyboardInterrupt:
         exit(0)
 
