@@ -37,7 +37,7 @@ endif()
 message(STATUS "Looking for OpenFST in ${OPENFST_ROOT}")
 
 if(MSVC)
-    add_compile_options(/W1 /O2 /DFST_NO_DYNAMIC_LINKING)
+    add_compile_options(/W1 /wo4291 /O2 /DFST_NO_DYNAMIC_LINKING)
     set(OPENFST_INCLUDE "${OPENFST_ROOT}/src/include")
     set(VOSK_LIBRARIES
         ${KALDI_ROOT}/kaldiwin_vs2017_OPENBLAS/x64/Release/kaldi-online2.lib
