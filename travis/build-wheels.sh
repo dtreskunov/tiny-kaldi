@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -e -x
 
-build_wheel="$(dirname $0)/build-wheel.sh"
-
 # Compile wheels
 for pypath in /opt/python/cp3*; do
     if [[ $pypath == *cp34* ]]; then
@@ -22,7 +20,7 @@ for pypath in /opt/python/cp3*; do
     # call build-wheel.sh
     PYTHON_CFLAGS=$(${pypath}/bin/python3-config --cflags) \
         KALDI_ROOT=/opt/kaldi \
-        build_wheel "$python_exe" /io /opt/wheelhouse
+        "$(dirname $0)/build-wheel.sh" "$python_exe" /io /opt/wheelhouse
 
     "$python_exe" -m pip install --upgrade auditwheel
 
