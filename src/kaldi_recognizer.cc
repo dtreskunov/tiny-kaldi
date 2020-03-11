@@ -243,7 +243,7 @@ void KaldiRecognizer::GetSpkVector(Vector<BaseFloat> &xvector)
 }
 
 
-const char* KaldiRecognizer::Result()
+std::string KaldiRecognizer::Result()
 {
 
     if (!input_finalized_) {
@@ -301,15 +301,15 @@ const char* KaldiRecognizer::Result()
         }
     }
 
-    return obj.dump().c_str();
+    return obj.dump();
 }
 
-const char* KaldiRecognizer::PartialResult()
+std::string KaldiRecognizer::PartialResult()
 {
     json::JSON res;
     if (decoder_->NumFramesDecoded() == 0) {
         res["partial"] = "";
-        return res.dump().c_str();
+        return res.dump();
     }
 
     kaldi::Lattice lat;
@@ -327,10 +327,10 @@ const char* KaldiRecognizer::PartialResult()
     }
     res["partial"] = text.str();
 
-    return res.dump().c_str();
+    return res.dump();
 }
 
-const char* KaldiRecognizer::FinalResult()
+std::string KaldiRecognizer::FinalResult()
 {
     if (!input_finalized_) {
         feature_pipeline_->InputFinished();

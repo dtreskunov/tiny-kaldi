@@ -41,9 +41,9 @@ class KaldiRecognizer {
         bool AcceptWaveform(const char *data, int len);
         bool AcceptWaveform(const short *sdata, int len);
         bool AcceptWaveform(const float *fdata, int len);
-        const char * Result();
-        const char * FinalResult();
-        const char * PartialResult();
+        std::string Result();
+        std::string FinalResult();
+        std::string PartialResult();
 
     private:
         void CleanUp();
