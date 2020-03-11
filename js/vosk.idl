@@ -1,0 +1,24 @@
+// https://emscripten.org/docs/porting/connecting_cpp_and_javascript/WebIDL-Binder.html#webidl-binder-type-name
+
+interface Model {
+  void Model([Const] DOMString v);
+
+  long SampleFrequency();
+  void SetAllowDownsample(boolean v);
+  void SetAllowUpsample(boolean v);
+};
+
+// interface SpkModel {
+//   void SpkModel([Const] DOMString v);
+// };
+
+interface KaldiRecognizer {
+  void KaldiRecognizer([Ref] Model model, float sample_frequency);
+  // void KaldiRecognizer([Ref] Model model, SpkModel spk_model, float sample_frequency);
+  void KaldiRecognizer([Ref] Model model, float sample_frequency, [Const] DOMString grammar);
+
+  boolean AcceptWaveform([Const] DOMString data, long length);
+  [Const] DOMString Result();
+  [Const] DOMString FinalResult();
+  [Const] DOMString PartialResult();
+};

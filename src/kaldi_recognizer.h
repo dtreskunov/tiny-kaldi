@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef KALDI_RECOGNIZER_H_
+#define KALDI_RECOGNIZER_H_
+
 #include "base/kaldi-common.h"
 #include "util/common-utils.h"
 #include "fstext/fstext-lib.h"
@@ -38,9 +41,9 @@ class KaldiRecognizer {
         bool AcceptWaveform(const char *data, int len);
         bool AcceptWaveform(const short *sdata, int len);
         bool AcceptWaveform(const float *fdata, int len);
-        std::string Result();
-        std::string FinalResult();
-        std::string PartialResult();
+        const char * Result();
+        const char * FinalResult();
+        const char * PartialResult();
 
     private:
         void CleanUp();
@@ -62,3 +65,5 @@ class KaldiRecognizer {
         int32 frame_offset_;
         bool input_finalized_;
 };
+
+#endif /* KALDI_RECOGNIZER_H_ */

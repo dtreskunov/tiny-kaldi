@@ -34,3 +34,12 @@ python/example/model*
 java/org
 java/model-en
 java/*.cc
+
+# JS
+js/glue.cpp
+js/glue.js
+js/parser.out
+js/vosk.bc
+js/vosk.js
+js/vosk.wasm
+js/WebIDLGrammar.pkl
