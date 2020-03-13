@@ -4,7 +4,6 @@ KALDI_ROOT ?= /opt/kaldi
 
 COMPILE_FLAGS := \
 	-r \
-	-O3 \
 	-std=c++17 \
 	-Wno-unused-function \
 	-I/opt/include \
@@ -14,12 +13,21 @@ COMPILE_FLAGS := \
 
 LINK_FLAGS := \
 	--bind \
-	-O3 \
 	-std=c++17 \
 	-s ALLOW_MEMORY_GROWTH=1 \
 	-s ERROR_ON_UNDEFINED_SYMBOLS=0 \
 	-s MODULARIZE=1 \
 	-s EXPORT_NAME=Vosk
+
+ifdef DEBUG
+DESTDIR ?= build/debug
+COMPILE_FLAGS += -O0 -g4
+LINK_FLAGS += -O0 -g4 -s DEMANGLE_SUPPORT=1
+else
+DESTDIR ?= build/release
+COMPILE_FLAGS += -O3
+LINK_FLAGS += -O3
+endif
 
 LIBS = \
 	${KALDI_ROOT}/src/base/kaldi-base.bc \
@@ -54,23 +62,23 @@ SRC = \
 
 all: dist example
 
-dist: build/dist/vosk.js
+dist: $(DESTDIR)/dist/vosk.js
 
-build/vosk.bc: $(SRC)
+$(DESTDIR)/vosk.bc: $(SRC)
 	mkdir -p $(dir $@)
 	$(CXX) -o $@ $(COMPILE_FLAGS) $(SRC)
 
-build/dist/vosk.js: build/vosk.bc vosk.pre.js
+$(DESTDIR)/dist/vosk.js: $(DESTDIR)/vosk.bc vosk.pre.js
 	mkdir -p $(dir $@)
 	cd $(dir $@); \
-	$(CXX) -o $(notdir $@) $(MAKEFILE_ROOT)/build/vosk.bc --pre-js $(MAKEFILE_ROOT)/vosk.pre.js $(LINK_FLAGS) $(LIBS)
+	$(CXX) -o $(notdir $@) $(MAKEFILE_ROOT)/$(DESTDIR)/vosk.bc --pre-js $(MAKEFILE_ROOT)/vosk.pre.js $(LINK_FLAGS) $(LIBS)
 
-build/example/model-en.tar.gz:
+$(DESTDIR)/example/model-en.tar.gz:
 	mkdir -p $(dir $@)
 	curl --fail -L -o $@ https://github.com/alphacep/kaldi-android-demo/releases/download/2020-01/alphacep-model-android-en-us-0.3.tar.gz
 
-example: build/example/model-en.tar.gz build/dist/vosk.js
-	install --target-directory=build/example example/*
+example: $(DESTDIR)/example/model-en.tar.gz $(DESTDIR)/dist/vosk.js
+	install --target-directory=$(DESTDIR)/example example/*
 
 clean:
 	git clean -f -X .

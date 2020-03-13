@@ -114,6 +114,7 @@
                         touchFile(extractedOk);
                         await syncFilesystem(false);
                     }
+                    const model = new Vosk.Model(modelPath);
                 }
 
                 run().then(() => console.log('YES!!!'))

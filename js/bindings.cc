@@ -16,6 +16,15 @@ struct ArchiveHelperWrapper : public wrapper<ArchiveHelper> {
     }
 };
 
+static Model *makeModel(const std::string &model_path) {
+    try {
+        return new Model(model_path.c_str());
+    } catch (std::exception &e) {
+        printf("Exception in Model ctor: %s\n", e.what());
+        throw;
+    }
+}
+
 EMSCRIPTEN_BINDINGS(vosk) {
     class_<ArchiveHelper>("ArchiveHelper")
         .function("Extract", &ArchiveHelper::Extract)
@@ -29,7 +38,7 @@ EMSCRIPTEN_BINDINGS(vosk) {
         ;
 
     class_<Model>("Model")
-        .constructor<const char *>()
+        .constructor(&makeModel, allow_raw_pointers())
         .function("SampleFrequency", &Model::SampleFrequency)
         ;
 
