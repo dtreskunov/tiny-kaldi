@@ -1,0 +1,124 @@
+<!doctype html>
+<html>
+    <script src="../dist/vosk.js"></script>
+    <script>
+        (function() {
+            if (!location.protocol.match(/^http/)) {
+                alert("Please serve this page over HTTP (e.g. python -m http.server)!");
+                return;
+            }
+            Vosk().then(function(Vosk) {
+                const FS = Vosk.FS;
+
+                function syncFilesystem(fromPersistent) {
+                    return new Promise(function(resolve, reject) {
+                        FS.syncfs(fromPersistent, function (err) {
+                            if (err) {
+                                reject('Failed to sync file system: ' + err);
+                            } else {
+                                console.debug('File system synced');
+                                resolve();
+                            }
+                        });
+                    });
+                }
+
+                async function download(url, path) {
+                    const lastSlashIdx = path.lastIndexOf('/');
+                    const dir = path.substring(0, lastSlashIdx);
+                    if (dir !== '') {
+                        console.debug(`Ensuring ${dir} is a valid directory`);
+                        FS.mkdirTree(dir);
+                    }
+                    console.debug(`Attempting to download from ${url}`);
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const contentLength = parseInt(response.headers.get('Content-Length'));
+                    console.debug(`Writing response to ${path}, Content-Length: ${contentLength}`);
+                    const reader = response.body.getReader();
+                    let bytesWritten = 0;
+                    let file;
+                    try {
+                        file = FS.open(path, 'w');
+                        while (true) {
+                            const {done, value} = await reader.read();
+                            if (done) {
+                                break;
+                            }
+                            if (value instanceof Uint8Array) {
+                                FS.write(file, value, 0, value.length);
+                                bytesWritten = bytesWritten + value.length;
+                                console.debug(`${Math.round(100*bytesWritten/contentLength)}% (${bytesWritten} of ${contentLength} bytes)`);
+                            } else {
+                                throw new Error('read() returned value in unexpected format');
+                            }
+                        }
+                        console.debug('Download done');
+                    } finally {
+                        if (file) {
+                            FS.close(file);
+                        }
+                    }
+                }
+
+                function extract(archivePath, outputPath, stripFirstComponent) {
+                    return new Promise(function(resolve, reject) {
+                        let helper = Vosk.ArchiveHelper.implement({
+                            onsuccess: resolve,
+                            onerror: reject
+                        });
+                        helper.Extract(archivePath, outputPath, stripFirstComponent);
+                    });
+                }
+
+                function isFile(path) {
+                    try {
+                        let fileStat = FS.stat(path);
+                        return FS.isFile(fileStat.mode);
+                    } catch {
+                        return false;
+                    }
+                }
+
+                function touchFile(path) {
+                    FS.close(FS.open(path, 'a'));
+                }
+
+                ///
+
+                async function run() {
+                    const storagePath = '/vosk';
+                    console.debug('Setting up persistent storage at ' + storagePath);
+                    FS.mkdir(storagePath);
+                    FS.mount(Vosk.IDBFS, {}, storagePath);
+                    await syncFilesystem(true);
+
+                    const modelPath = storagePath + '/model-en';
+                    const extractedOk = modelPath + '/extracted.ok';
+                    if (isFile(extractedOk)) {
+                        console.debug(`${modelPath} was successfully extracted before`);
+                    } else {
+                        const archivePath = modelPath + '/model.tar.gz';
+                        const downloadedOk = modelPath + '/downloaded.ok';
+                        if (isFile(downloadedOk)) {
+                            console.debug(`${archivePath} was successfully downloaded before`);
+                        } else {
+                            await download('model-en.tar.gz', archivePath);
+                            touchFile(downloadedOk);
+                        }
+                        await extract(archivePath, modelPath, true);
+                        FS.unlink(archivePath);
+                        FS.unlink(downloadedOk);
+                        touchFile(extractedOk);
+                        await syncFilesystem(false);
+                    }
+                }
+
+                run().then(() => console.log('YES!!!'))
+                    .catch((e) => console.error('NO YUO!', e));
+            });
+        })();
+    </script>
+</html>

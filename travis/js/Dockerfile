@@ -34,3 +34,21 @@ RUN emmake make -j $(nproc)
 WORKDIR /opt/kaldi/src
 RUN CXXFLAGS=-O3 LDFLAGS=-O3 emconfigure ./configure --use-cuda=no --static --static-fst=yes --clapack-root=../tools/CLAPACK-WA --gsl-root=../tools/gsl --fst-root=../tools/openfst-1.6.7/src
 RUN emmake make -j $(nproc)
+
+WORKDIR /tmp/zlib
+RUN curl --fail -q -L https://zlib.net/zlib-1.2.11.tar.gz | \
+    tar xz --strip-components=1
+RUN emconfigure ./configure --prefix=/opt
+RUN emmake make -j $(nproc)
+RUN emmake make install
+RUN rm -rf /tmp/zlib
+
+WORKDIR /tmp/libarchive
+RUN curl --fail -q -L http://www.libarchive.org/downloads/libarchive-3.4.2.tar.gz | \
+    tar xz --strip-components=1
+RUN emconfigure ./configure CPPFLAGS=-I/opt/include LDFLAGS=-L/opt/lib --with-sysroot=/opt --prefix=/opt
+RUN emmake make -j $(nproc)
+RUN emmake make install
+RUN rm -rf /tmp/libarchive
+
+WORKDIR /opt
