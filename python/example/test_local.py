@@ -20,10 +20,10 @@ assert 2 == wf.getsampwidth()
 assert 'NONE' == wf.getcomptype()
 
 model = Model("model-en")
-if model.GetSampleFrequency() < wf.getframerate():
+if model.SampleFrequency() < wf.getframerate():
     print('Model sample frequency is lower than WAV file. Enabling downsampling.')
     model.SetAllowDownsample(True)
-elif model.GetSampleFrequency() > wf.getframerate():
+elif model.SampleFrequency() > wf.getframerate():
     print('Model sample frequency is higher than WAV file. Enabling upsampling. You may experience inaccurate results.')
     model.SetAllowUpsample(True)
 
