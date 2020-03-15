@@ -1,26 +1,5 @@
 <!doctype html>
 <html>
     <script src="../dist/vosk.js"></script>
-    <script>
-        (function() {
-            'use strict';
-            if (!location.protocol.match(/^http/)) {
-                alert("Please serve this page over HTTP (e.g. python -m http.server)!");
-                return;
-            }
-            LoadVosk().then(async function(Vosk) {
-                const FS = Vosk.FS;
-                const storagePath = '/vosk';
-                console.debug('Setting up persistent storage at ' + storagePath);
-                FS.mkdir(storagePath);
-                FS.mount(Vosk.IDBFS, {}, storagePath);
-                await Vosk.syncFilesystem(true);
-                const modelPath = storagePath + '/model-en';
-                await Vosk.downloadAndExtract('model-en.tar.gz', modelPath);
-                await Vosk.syncFilesystem(false);
-                const model = new Vosk.Model(modelPath);
-                console.log("Model loaded")
-            });
-        })();
-    </script>
+    <script src="example.js" async></script>
 </html>

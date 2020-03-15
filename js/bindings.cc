@@ -25,6 +25,12 @@ static Model *makeModel(const std::string &model_path) {
     }
 }
 
+static bool KaldiRecognizer_AcceptWaveform(KaldiRecognizer &self, long jsHeapAddr, int len) {
+    const float *fdata = (const float*) jsHeapAddr;
+    // std::printf("AcceptWaveform received len=%d 0=%f %d=%f\n", len, fdata[0], len-1, fdata[len-1]);
+    return self.KaldiRecognizer::AcceptWaveform(fdata, len);
+}
+
 EMSCRIPTEN_BINDINGS(vosk) {
     class_<ArchiveHelper>("ArchiveHelper")
         .function("Extract", &ArchiveHelper::Extract)
@@ -40,6 +46,8 @@ EMSCRIPTEN_BINDINGS(vosk) {
     class_<Model>("Model")
         .constructor(&makeModel, allow_raw_pointers())
         .function("SampleFrequency", &Model::SampleFrequency)
+        .function("SetAllowDownsample", &Model::SetAllowDownsample)
+        .function("SetAllowUpsample", &Model::SetAllowUpsample)
         ;
 
     class_<SpkModel>("SpkModel")
@@ -48,11 +56,9 @@ EMSCRIPTEN_BINDINGS(vosk) {
 
     class_<KaldiRecognizer>("KaldiRecognizer")
         .constructor<Model &, float>()
-        .function("AcceptWaveform",
-            select_overload<bool(const float *, int)>(&KaldiRecognizer::AcceptWaveform),
-            allow_raw_pointers())
+        .function("AcceptWaveform", &KaldiRecognizer_AcceptWaveform)
         .function("Result", &KaldiRecognizer::Result)
         .function("FinalResult", &KaldiRecognizer::FinalResult)
         .function("PartialResult", &KaldiRecognizer::PartialResult)
-        ;
+        ;    
 }
