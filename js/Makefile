@@ -1,7 +1,8 @@
-MAKEFILE_ROOT := $(CURDIR)
-PROJ_ROOT := $(realpath $(CURDIR)/..)
+MAKEFILE_ROOT := $(realpath $(dir $(firstword $(MAKEFILE_LIST))))
+PROJ_ROOT := $(realpath $(MAKEFILE_ROOT)/..)
 KALDI_ROOT ?= /opt/kaldi
 
+# https://github.com/emscripten-core/emscripten/blob/master/src/settings.js
 COMPILE_FLAGS := \
 	-r \
 	-std=c++17 \
@@ -12,12 +13,14 @@ COMPILE_FLAGS := \
 	-I$(MAKEFILE_ROOT)
 
 LINK_FLAGS := \
+	--pre-js $(MAKEFILE_ROOT)/vosk.pre.js \
+	--post-js $(MAKEFILE_ROOT)/vosk.post.js \
 	--bind \
 	-std=c++17 \
 	-s ALLOW_MEMORY_GROWTH=1 \
 	-s ERROR_ON_UNDEFINED_SYMBOLS=0 \
 	-s MODULARIZE=1 \
-	-s EXPORT_NAME=Vosk
+	-s EXPORT_NAME=LoadVosk
 
 ifdef DEBUG
 DESTDIR ?= build/debug
@@ -26,7 +29,7 @@ LINK_FLAGS += -O0 -g4 -s DEMANGLE_SUPPORT=1
 else
 DESTDIR ?= build/release
 COMPILE_FLAGS += -O3
-LINK_FLAGS += -O3
+LINK_FLAGS += -O3 # --closure 1 leads to "Failed to sync file system: Error: Unsupported data type"
 endif
 
 LIBS = \
@@ -68,10 +71,10 @@ $(DESTDIR)/vosk.bc: $(SRC)
 	mkdir -p $(dir $@)
 	$(CXX) -o $@ $(COMPILE_FLAGS) $(SRC)
 
-$(DESTDIR)/dist/vosk.js: $(DESTDIR)/vosk.bc vosk.pre.js
+$(DESTDIR)/dist/vosk.js: $(DESTDIR)/vosk.bc vosk.pre.js vosk.post.js
 	mkdir -p $(dir $@)
 	cd $(dir $@); \
-	$(CXX) -o $(notdir $@) $(MAKEFILE_ROOT)/$(DESTDIR)/vosk.bc --pre-js $(MAKEFILE_ROOT)/vosk.pre.js $(LINK_FLAGS) $(LIBS)
+	$(CXX) -o $(notdir $@) $(MAKEFILE_ROOT)/$(DESTDIR)/vosk.bc $(LINK_FLAGS) $(LIBS)
 
 $(DESTDIR)/example/model-en.tar.gz:
 	mkdir -p $(dir $@)
