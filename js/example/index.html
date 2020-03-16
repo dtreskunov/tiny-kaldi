@@ -1,5 +1,38 @@
 <!doctype html>
 <html>
-    <script src="../dist/vosk.js"></script>
-    <script src="example.js" async></script>
+<style>
+#results, #partial {
+    font-family: monospace;
+}
+</style>
+
+<button id="startStop">Start</button>
+<p id="partial"></p>
+<p id="results"></p>
+
+<script src="example.js"></script>
+<script>
+'use strict'
+
+const partialElement = document.querySelector('#partial')
+const resultsElement = document.querySelector('#results')
+
+const recognizer = new Recognizer('model-en.tar.gz')
+recognizer.onresult = result => {
+    if (result.partial) {
+        partialElement.textContent = JSON.stringify(result)
+    } else {
+        const resultElement = document.createElement('p')
+        resultElement.textContent = JSON.stringify(result)
+        resultsElement.appendChild(resultElement)
+    }
+}
+
+document.querySelector('#startStop').addEventListener('click', click => {
+    recognizer.getActive()
+    .then(active => recognizer.setActive(!active))
+    .then(active => click.srcElement.textContent = (active ? 'Stop' : 'Start'))
+});
+
+</script>
 </html>
