@@ -12,10 +12,10 @@ class BaseMicrophoneProcessor {
         this._nodes = null
     }
     /**
-     * @param {AudioContext} _context
+     * @param {AudioContext} context
      * @returns {AudioNode[]}
      */
-    createIntermediateNodes(_context) {
+    createIntermediateNodes(context) {
         return []
     }
     getActive() {
@@ -43,7 +43,6 @@ class BaseMicrophoneProcessor {
             else
                 src.disconnect(dst)
         }
-        return nodes
     }
     _stop() {
         // The spec states that: "Any AudioNodes which are connected in a cycle
@@ -71,14 +70,13 @@ class BaseMicrophoneProcessor {
             this._stream = stream
             this._context = new AudioContext()
 
-            const microphoneNode = this._context.createMediaStreamSource(this._stream)
-
             // connecting processorNode to destination was required to get it working in Chrome
-            this._nodes = BaseMicrophoneProcessor._connectAudioNodesInSequence(true, [
-                microphoneNode,
+            this._nodes = [
+                this._context.createMediaStreamSource(this._stream),
                 ...this.createIntermediateNodes(this._context),
                 this._context.destination,
-            ])
+            ]
+            BaseMicrophoneProcessor._connectAudioNodesInSequence(true, this._nodes)
         })
     }
 }
