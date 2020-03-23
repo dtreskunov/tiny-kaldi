@@ -12,13 +12,6 @@ class BaseMicrophoneProcessor {
         this._nodes = null
     }
     /**
-     * Override this to do actual processing
-     * @param {AudioBuffer} buffer
-     */
-    processAudioBuffer(buffer) {
-        console.debug('.')
-    }
-    /**
      * @param {AudioContext} _context
      * @returns {AudioNode[]}
      */
@@ -80,22 +73,10 @@ class BaseMicrophoneProcessor {
 
             const microphoneNode = this._context.createMediaStreamSource(this._stream)
 
-            // output channel is unused but needed to receive onaudioprocess events in Chrome
-            const processorNode = this._context.createScriptProcessor(4096, 1, 1)
-            processorNode.onaudioprocess = e => {
-                try {
-                    this.processAudioBuffer(e.inputBuffer)
-                } catch (e) {
-                    console.error('processAudioBuffer failed, stopping', e)
-                    this._stop();
-                }
-            }
-
             // connecting processorNode to destination was required to get it working in Chrome
             this._nodes = BaseMicrophoneProcessor._connectAudioNodesInSequence(true, [
                 microphoneNode,
                 ...this.createIntermediateNodes(this._context),
-                processorNode,
                 this._context.destination,
             ])
         })
@@ -200,14 +181,26 @@ class Recognizer extends BaseMicrophoneProcessor {
         return super._stop().then(() => this._workerClient.callWorkerMethodAndWait('stop'))
     }
     /**
-     * Kaldi expects each sample to be a floating point number between -32768 and 32767 (range of signed Int16)
-     * However, web audio samples are represented as floating point numbers between -1.0 and 1.0
-     * @param {AudioContext} context 
+     * @param {AudioContext} context
+     * @returns {AudioNode[]}
      */
     createIntermediateNodes(context) {
+        // Kaldi expects each sample to be a floating point number between -32768 and 32767 (range of signed Int16)
+        // However, web audio samples are represented as floating point numbers between -1.0 and 1.0
         const gainNode = context.createGain()
         gainNode.gain.value = 0x8000
-        return [gainNode]
+
+        // output channel is unused but needed to receive onaudioprocess events in Chrome
+        const processorNode = context.createScriptProcessor(4096, 1, 1)
+        processorNode.onaudioprocess = e => {
+            try {
+                this.processAudioBuffer(e.inputBuffer)
+            } catch (e) {
+                console.error('processAudioBuffer failed, stopping', e)
+                this._stop();
+            }
+        }
+        return [gainNode, processorNode]
     }
     /**
      * @param {AudioBuffer} buffer 
