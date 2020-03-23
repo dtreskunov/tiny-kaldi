@@ -16,7 +16,7 @@ class BaseMicrophoneProcessor {
      * @param {AudioBuffer} buffer
      */
     processAudioBuffer(buffer) {
-        console.log('.')
+        console.debug('.')
     }
     /**
      * @param {AudioContext} _context
@@ -191,13 +191,13 @@ class Recognizer extends BaseMicrophoneProcessor {
         }
     }
     onresult(result) {
-        console.log('Recognizer: got result', result)
+        console.debug('Recognizer: got result', result)
     }
     _start() {
         return this._workerClient.callWorkerMethodAndWait('start').then(() => super._start())
     }
     _stop() {
-        return this._workerClient.callWorkerMethodAndWait('stop').then(() => super._stop())
+        return super._stop().then(() => this._workerClient.callWorkerMethodAndWait('stop'))
     }
     /**
      * Kaldi expects each sample to be a floating point number between -32768 and 32767 (range of signed Int16)
@@ -233,7 +233,7 @@ class Recognizer extends BaseMicrophoneProcessor {
 class RecognizerWorker extends WorkerServer {
     constructor(modelUrl) {
         super()
-        console.log(`RecognizerWorker: constructed with modelUrl=${modelUrl}`)
+        console.debug(`RecognizerWorker: constructed with modelUrl=${modelUrl}`)
         importScripts('vosk.js')
         this._Vosk = null
         this._modelUrl = modelUrl
@@ -244,7 +244,7 @@ class RecognizerWorker extends WorkerServer {
         this._running = false
     }
     start() {
-        console.log('RecognizerWorker: starting')
+        console.debug('RecognizerWorker: starting')
         const storagePath = '/vosk'
         const modelPath = storagePath + '/' + this._modelUrl
         return new Promise((resolve, reject) => LoadVosk().then(loaded => {
@@ -273,20 +273,20 @@ class RecognizerWorker extends WorkerServer {
         })
     }
     stop() {
-        console.log('RecognizerWorker: stopping')
-        this._freeBuffer()
+        console.debug('RecognizerWorker: stopping')
+        if (this._recognizer) {
+            postMessage({result: JSON.parse(this._recognizer.FinalResult())})
+            this._recognizer.delete()
+            this._recognizer = null
+            console.debug('RecognizerWorker: ~KaldiRecognizer()')
+        }
         if (this._model) {
             this._model.delete()
             this._model = null
             console.debug('RecognizerWorker: ~Model()')
         }
-        if (this._recognizer) {
-            this._recognizer.delete()
-            this._recognizer = null
-            console.debug('RecognizerWorker: ~KaldiRecognizer()')
-        }
+        this._freeBuffer()
         this._running = false
-        // TODO: call KaldiRecognizer::FinalResult
     }
     _allocateBuffer(size) {
         if (this._bufferAddr !== null && this._bufferSize === size) {
