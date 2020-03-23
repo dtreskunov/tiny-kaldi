@@ -153,7 +153,7 @@ class WorkerServer {
 }
 
 class Recognizer extends BaseMicrophoneProcessor {
-    constructor(modelUrl) {
+    constructor(modelUrl, preload=true) {
         super()
 
         const workerUrl = new URL(CURRENT_SCRIPT_URL)
@@ -161,7 +161,11 @@ class Recognizer extends BaseMicrophoneProcessor {
         workerUrl.searchParams.set('modelUrl', modelUrl)
         this._workerClient = new WorkerClient(workerUrl)
         const _this = this
+        this._preload = preload
         this._workerClient.handleWorkerMessage = data => _this.handleWorkerMessage(data)
+        if (this._preload) {
+            this._workerClient.callWorkerMethod('start')
+        }
     }
     handleWorkerMessage(data) {
         const {result} = data
@@ -176,7 +180,11 @@ class Recognizer extends BaseMicrophoneProcessor {
         return this._workerClient.callWorkerMethodAndWait('start').then(() => super._start())
     }
     _stop() {
-        return super._stop().then(() => this._workerClient.callWorkerMethodAndWait('stop'))
+        return super._stop().then(() => {
+            if (!this._preload) {
+                this._workerClient.callWorkerMethodAndWait('stop')
+            }
+        })
     }
     /**
      * @param {AudioContext} context
@@ -235,6 +243,9 @@ class RecognizerWorker extends WorkerServer {
         this._running = false
     }
     start() {
+        if (this._running) {
+            return
+        }
         console.debug('RecognizerWorker: starting')
         const storagePath = '/vosk'
         const modelPath = storagePath + '/' + this._modelUrl
@@ -264,6 +275,9 @@ class RecognizerWorker extends WorkerServer {
         })
     }
     stop() {
+        if (!this._running) {
+            return
+        }
         console.debug('RecognizerWorker: stopping')
         if (this._recognizer) {
             postMessage({result: JSON.parse(this._recognizer.FinalResult())})
