@@ -241,58 +241,63 @@ var VoskJS = (function() {
             this._bufferSize = null
             this._model = null
             this._recognizer = null
-            this._running = false
+            this._determineRunning = Promise.resolve(false)
         }
         start() {
-            if (this._running) {
-                return
-            }
-            console.debug('RecognizerWorker: starting')
-            const storagePath = '/vosk'
-            const modelPath = storagePath + '/' + this._modelUrl
-            return new Promise((resolve, reject) => LoadVosk().then(loaded => {
-                this._Vosk = loaded
-                resolve()
-            }))
-            .then(() => {
-                console.debug('Setting up persistent storage at ' + storagePath)
-                this._Vosk.FS.mkdir(storagePath)
-                this._Vosk.FS.mount(this._Vosk.IDBFS, {}, storagePath)
-                return this._Vosk.syncFilesystem(true)
+            this._determineRunning = this._determineRunning.then(running => {
+                if (running) {
+                    return true
+                }
+                console.debug('RecognizerWorker: starting')
+                const storagePath = '/vosk'
+                const modelPath = storagePath + '/' + this._modelUrl
+                return new Promise((resolve, reject) => LoadVosk().then(loaded => {
+                    this._Vosk = loaded
+                    resolve()
+                }))
+                .then(() => {
+                    console.debug('Setting up persistent storage at ' + storagePath)
+                    this._Vosk.FS.mkdir(storagePath)
+                    this._Vosk.FS.mount(this._Vosk.IDBFS, {}, storagePath)
+                    return this._Vosk.syncFilesystem(true)
+                })
+                .then(() => {
+                    return this._Vosk.downloadAndExtract(this._modelUrl, modelPath)
+                })
+                .then(() => {
+                    return this._Vosk.syncFilesystem(false)
+                })
+                .then(() => {
+                    this._model = new this._Vosk.Model(modelPath)
+                    this._model.SetAllowDownsample(true)
+                    console.debug(`RecognizerWorker: new Model(), SampleFrequency=${this._model.SampleFrequency()}`)
+                })
+                .then(() => {
+                    return true
+                })
             })
-            .then(() => {
-                return this._Vosk.downloadAndExtract(this._modelUrl, modelPath)
-            })
-            .then(() => {
-                return this._Vosk.syncFilesystem(false)
-            })
-            .then(() => {
-                this._model = new this._Vosk.Model(modelPath)
-                this._model.SetAllowDownsample(true)
-                console.debug(`RecognizerWorker: new Model(), SampleFrequency=${this._model.SampleFrequency()}`)
-            })
-            .then(() => {
-                this._running = true
-            })
+            return this._determineRunning
         }
         stop() {
-            if (!this._running) {
-                return
-            }
-            console.debug('RecognizerWorker: stopping')
-            if (this._recognizer) {
-                postMessage({result: JSON.parse(this._recognizer.FinalResult())})
-                this._recognizer.delete()
-                this._recognizer = null
-                console.debug('RecognizerWorker: ~KaldiRecognizer()')
-            }
-            if (this._model) {
-                this._model.delete()
-                this._model = null
-                console.debug('RecognizerWorker: ~Model()')
-            }
-            this._freeBuffer()
-            this._running = false
+            this._determineRunning = this._determineRunning.then(running => {
+                if (running) {
+                    console.debug('RecognizerWorker: stopping')
+                    if (this._recognizer) {
+                        postMessage({result: JSON.parse(this._recognizer.FinalResult())})
+                        this._recognizer.delete()
+                        this._recognizer = null
+                        console.debug('RecognizerWorker: ~KaldiRecognizer()')
+                    }
+                    if (this._model) {
+                        this._model.delete()
+                        this._model = null
+                        console.debug('RecognizerWorker: ~Model()')
+                    }
+                    this._freeBuffer()
+                }
+                return false
+            })
+            return this._determineRunning
         }
         _allocateBuffer(size) {
             if (this._bufferAddr !== null && this._bufferSize === size) {
@@ -313,10 +318,6 @@ var VoskJS = (function() {
             this._bufferSize = null
         }
         processAudioChunk({data, sampleRate, duration}) {
-            if (!this._running) {
-                console.debug('RecognizerWorker: not running, dropping message')
-                return
-            }
             if (this._recognizer === null) {
                 this._recognizer = new this._Vosk.KaldiRecognizer(this._model, sampleRate)
                 console.debug(`RecognizerWorker: new KaldiRecognizer (sampleRate=${sampleRate})`)
