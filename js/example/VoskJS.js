@@ -344,7 +344,9 @@ var VoskJS = (function() {
                 if (!modelUrl) {
                     throw new Error('model-url attribute is required')
                 }
-                const recognizer = new Recognizer(modelUrl)
+                // whether to stop automatically after a completed utterance
+                this._oneshot = this.hasAttribute('oneshot')
+                this._recognizer = new Recognizer(modelUrl)
                 const template = document.createElement('template')
                 template.innerHTML = WCRecognizer.template()
                 this.attachShadow({ mode: 'open' })
@@ -352,20 +354,22 @@ var VoskJS = (function() {
                 const textElement = this.shadowRoot.querySelector('#text')
                 const buttonElement = this.shadowRoot.querySelector('#startStop')
 
+                const updateButton = active => {
+                    buttonElement.textContent = (active ? 'Stop' : 'Start')
+                    buttonElement.disabled = false
+                }
+
                 buttonElement.addEventListener('click', () => {
                     buttonElement.disabled = true
-                    recognizer.getActive()
-                        .then(active => recognizer.setActive(!active))
-                        .then(active => {
-                            buttonElement.textContent = (active ? 'Stop' : 'Start')
-                            buttonElement.disabled = false
-                        })
+                    this._recognizer.getActive()
+                        .then(active => this._recognizer.setActive(!active))
+                        .then(updateButton)
                         .catch(e => {
                             console.error(e)
                         })
                 })
 
-                recognizer.onresult = result => {
+                this._recognizer.onresult = result => {
                     if (result.partial) {
                         textElement.classList.add('partial')
                         textElement.classList.remove('complete')
@@ -389,6 +393,9 @@ var VoskJS = (function() {
                             }
                             textElement.appendChild(wordElement)
                         })
+                        if (this._oneshot) {
+                            this._recognizer.setActive(false).then(updateButton)
+                        }
                     }
                     this.dispatchEvent(new CustomEvent('kaldi-recognizer-result', result))
                 }
