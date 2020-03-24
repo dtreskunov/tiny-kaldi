@@ -333,6 +333,61 @@ var VoskJS = (function() {
             return JSON.parse(json)
         }
     }
+
+    if (typeof(HTMLElement) !== 'undefined' && typeof(customElements) !== 'undefined') {
+        // undefined in worker context
+        class WCRecognizer extends HTMLElement {
+            constructor() {
+                super()
+                const modelUrl = this.getAttribute('model-url')
+                if (!modelUrl) {
+                    throw new Error('model-url attribute is required')
+                }
+                const recognizer = new Recognizer(modelUrl)
+                const template = document.createElement('template')
+                template.innerHTML = WCRecognizer.template()
+                this.attachShadow({ mode: 'open' })
+                this.shadowRoot.appendChild(template.content.cloneNode(true))
+                const buttonElement = this.shadowRoot.querySelector('#startStop')
+                const partialElement = this.shadowRoot.querySelector('#partial')
+                const resultsElement = this.shadowRoot.querySelector('#results')
+
+                buttonElement.addEventListener('click', click => {
+                    buttonElement.disabled = true
+                    recognizer.getActive()
+                        .then(active => recognizer.setActive(!active))
+                        .then(active => {
+                            buttonElement.textContent = (active ? 'Stop' : 'Start')
+                            buttonElement.disabled = false
+                        })
+                })
+
+                recognizer.onresult = result => {
+                    if (result.partial) {
+                        partialElement.textContent = JSON.stringify(result)
+                    } else {
+                        const resultElement = document.createElement('p')
+                        resultElement.textContent = JSON.stringify(result)
+                        resultsElement.appendChild(resultElement)
+                    }
+                    this.dispatchEvent(new CustomEvent('kaldi-recognizer-result', result))
+                }
+            }
+            static template () {
+                return `
+                    <style>
+                        #results, #partial {
+                            font-family: monospace;
+                        }
+                    </style>
+                    <button id="startStop">Start</button>
+                    <p id="partial"></p>
+                    <p id="results"></p>
+                `
+            }
+        }
+        customElements.define('vosk-recognizer', WCRecognizer)
+    }
     
     // this is similar to POSIX fork() - same code is loaded in two different threads
     // Here we detect if we are inside the worker context
