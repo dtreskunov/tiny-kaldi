@@ -81,8 +81,8 @@ $(DESTDIR)/example/model-en.tar.gz:
 	curl --fail -L -o $@ https://github.com/alphacep/kaldi-android-demo/releases/download/2020-01/alphacep-model-android-en-us-0.3.tar.gz
 
 example: dist $(DESTDIR)/example/model-en.tar.gz
-	install --target-directory=$(DESTDIR)/example example/*
-	install --target-directory=$(DESTDIR)/example $(DESTDIR)/dist/*
+	rsync -r example/         $(DESTDIR)/example
+	rsync -r $(DESTDIR)/dist/ $(DESTDIR)/example
 
 clean:
 	git clean -f -X .

@@ -10,14 +10,14 @@
 <p id="partial"></p>
 <p id="results"></p>
 
-<script src="example.js"></script>
+<script src="VoskJS.js"></script>
 <script>
 'use strict'
 
 const partialElement = document.querySelector('#partial')
 const resultsElement = document.querySelector('#results')
 
-const recognizer = new Recognizer('model-en.tar.gz')
+const recognizer = new VoskJS.Recognizer('model-en.tar.gz')
 recognizer.onresult = result => {
     if (result.partial) {
         partialElement.textContent = JSON.stringify(result)
