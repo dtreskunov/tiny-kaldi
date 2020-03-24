@@ -380,7 +380,7 @@ var VoskJS = (function() {
                         textElement.classList.remove('partial')
                         textElement.classList.add('complete')
                         textElement.textContent = ''
-                        result.result.forEach(x => {
+                        result.result.forEach((x, i, arr) => {
                             const wordElement = document.createElement('span')
                             wordElement.textContent = x.word
                             wordElement.classList.add('word')
@@ -392,6 +392,9 @@ var VoskJS = (function() {
                                 wordElement.classList.add('confidence-low')
                             }
                             textElement.appendChild(wordElement)
+                            if (i < arr.length) {
+                                textElement.appendChild(document.createTextNode(' '))
+                            }
                         })
                         if (this._oneshot) {
                             this._recognizer.setActive(false).then(updateButton)
@@ -411,10 +414,10 @@ var VoskJS = (function() {
                             text-decoration-color: red;
                         }
                         .partial::after {
-                            content: "...";
+                            content: "\\2026";
                         }
-                        .word::after {
-                            content: " ";
+                        * {
+                            font-size: var(--font-size, 1rem);
                         }
                     </style>
                     <button id="startStop">Start</button>
