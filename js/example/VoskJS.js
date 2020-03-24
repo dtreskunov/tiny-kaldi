@@ -105,7 +105,7 @@ var VoskJS = (function() {
             // to be overridden
         }
         _onmessage(event) {
-            console.debug('WorkerClient: received event.data', event.data)
+            // console.debug('WorkerClient: received event.data', event.data)
             var {result, error, messageId} = event.data
             if (messageId) {
                 let inflightMessage = this._inflightMessages.get(messageId)
@@ -132,7 +132,7 @@ var VoskJS = (function() {
             onmessage = event => _this.onmessage(event)
         }
         onmessage(event) {
-            console.debug('WorkerServer: received event.data', event.data)
+            // console.debug('WorkerServer: received event.data', event.data)
             let {method, params, messageId} = event.data
             try {
                 let _method = this[method]
