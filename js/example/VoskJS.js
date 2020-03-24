@@ -427,7 +427,7 @@ var VoskJS = (function() {
                             this._recognizer.setActive(false).then(updateButton)
                         }
                     }
-                    this.dispatchEvent(new CustomEvent('kaldi-recognizer-result', result))
+                    this.dispatchEvent(new CustomEvent('vosk-recognizer-result', {detail: result}))
                 }
             }
             static template () {
