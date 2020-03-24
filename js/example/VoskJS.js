@@ -1,7 +1,22 @@
 'use strict'
 
 var VoskJS = (function() {
-    const CURRENT_SCRIPT_URL = new URL(typeof(document) === 'undefined' ? location.href : document.currentScript.src)
+    function determineCurrentScript() {
+        if (typeof(document) !== 'undefined') {
+            return document.currentScript.src
+        }
+        // we must be in a worker context
+        if (typeof(self.CURRENT_SCRIPT) === 'string') {
+            // if loaded from a Blob, this global variable should have been defined
+            return self.CURRENT_SCRIPT
+        }
+        // otherwise, we can get the location where this script was loaded from like so
+        return location.href
+    }
+    const currentScript = determineCurrentScript()
+    function getFullUrlRelativeToCurrentScript(url = '') {
+        return new URL(url, currentScript)
+    }
 
     class BaseMicrophoneProcessor {
         // Chrome only allows using audio after user interaction
@@ -84,7 +99,7 @@ var VoskJS = (function() {
     
     class WorkerClient {
         constructor(workerUrl) {
-            this._worker = new Worker(workerUrl)
+            this._worker = this._createWorker(workerUrl)
             const _this = this
             this._worker.onmessage = event => _this._onmessage(event)
             this._messageIdsequence = 0
@@ -103,6 +118,19 @@ var VoskJS = (function() {
         }
         handleWorkerMessage(_data) {
             // to be overridden
+        }
+        _createWorker(url) {
+            try {
+                return new Worker(url)
+            } catch (e) {
+                // https://benohead.com/blog/2017/12/06/cross-domain-cross-browser-web-workers/
+                console.debug(`Unable to create Worker('${url}'). Trying to work around cross-domain restriction.`, e)
+                const blob = new Blob(
+                    [`var CURRENT_SCRIPT='${url}';importScripts('${url}');`],
+                    {type: 'application/javascript'})
+                const blobUrl = URL.createObjectURL(blob)
+                return new Worker(blobUrl)
+            }
         }
         _onmessage(event) {
             // console.debug('WorkerClient: received event.data', event.data)
@@ -157,9 +185,9 @@ var VoskJS = (function() {
         constructor(modelUrl, preload=true) {
             super()
     
-            const workerUrl = new URL(CURRENT_SCRIPT_URL)
+            const workerUrl = getFullUrlRelativeToCurrentScript()
             workerUrl.searchParams.set('worker', 'true')
-            workerUrl.searchParams.set('modelUrl', modelUrl)
+            workerUrl.searchParams.set('modelUrl', getFullUrlRelativeToCurrentScript(modelUrl))
             this._workerClient = new WorkerClient(workerUrl)
             const _this = this
             this._preload = preload
@@ -234,7 +262,7 @@ var VoskJS = (function() {
         constructor(modelUrl) {
             super()
             console.debug(`RecognizerWorker: constructed with modelUrl=${modelUrl}`)
-            importScripts(new URL('vosk.js', CURRENT_SCRIPT_URL))
+            importScripts(getFullUrlRelativeToCurrentScript('vosk.js'))
             this._Vosk = null
             this._modelUrl = modelUrl
             this._bufferAddr = null // address of buffer on the heap, has to be _malloc/_free-d
@@ -250,7 +278,7 @@ var VoskJS = (function() {
                 }
                 console.debug('RecognizerWorker: starting')
                 const storagePath = '/vosk'
-                const modelPath = storagePath + '/' + this._modelUrl
+                const modelPath = storagePath + '/' + this._modelUrl.replace(/[\W]/g, '_')
                 return new Promise((resolve, reject) => LoadVosk().then(loaded => {
                     this._Vosk = loaded
                     resolve()
@@ -338,8 +366,7 @@ var VoskJS = (function() {
     if (typeof(HTMLElement) !== 'undefined' && typeof(customElements) !== 'undefined') {
         // undefined in worker context
         class WCRecognizer extends HTMLElement {
-            constructor() {
-                super()
+            connectedCallback () {
                 const modelUrl = this.getAttribute('model-url')
                 if (!modelUrl) {
                     throw new Error('model-url attribute is required')
@@ -430,8 +457,9 @@ var VoskJS = (function() {
     
     // this is similar to POSIX fork() - same code is loaded in two different threads
     // Here we detect if we are inside the worker context
-    if (CURRENT_SCRIPT_URL.searchParams.get('worker') === 'true') {
-        const modelUrl = CURRENT_SCRIPT_URL.searchParams.get('modelUrl')
+    const searchParams = getFullUrlRelativeToCurrentScript().searchParams
+    if (searchParams.get('worker') === 'true') {
+        const modelUrl = searchParams.get('modelUrl')
         const worker = new RecognizerWorker(modelUrl)
     }
 
