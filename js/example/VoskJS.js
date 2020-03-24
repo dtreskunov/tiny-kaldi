@@ -349,11 +349,10 @@ var VoskJS = (function() {
                 template.innerHTML = WCRecognizer.template()
                 this.attachShadow({ mode: 'open' })
                 this.shadowRoot.appendChild(template.content.cloneNode(true))
+                const textElement = this.shadowRoot.querySelector('#text')
                 const buttonElement = this.shadowRoot.querySelector('#startStop')
-                const partialElement = this.shadowRoot.querySelector('#partial')
-                const resultsElement = this.shadowRoot.querySelector('#results')
 
-                buttonElement.addEventListener('click', click => {
+                buttonElement.addEventListener('click', () => {
                     buttonElement.disabled = true
                     recognizer.getActive()
                         .then(active => recognizer.setActive(!active))
@@ -361,15 +360,35 @@ var VoskJS = (function() {
                             buttonElement.textContent = (active ? 'Stop' : 'Start')
                             buttonElement.disabled = false
                         })
+                        .catch(e => {
+                            console.error(e)
+                        })
                 })
 
                 recognizer.onresult = result => {
                     if (result.partial) {
-                        partialElement.textContent = JSON.stringify(result)
-                    } else {
-                        const resultElement = document.createElement('p')
-                        resultElement.textContent = JSON.stringify(result)
-                        resultsElement.appendChild(resultElement)
+                        textElement.classList.add('partial')
+                        textElement.classList.remove('complete')
+                        textElement.textContent = result.partial
+                    }
+                    if (result.result) {
+                        console.debug(result)
+                        textElement.classList.remove('partial')
+                        textElement.classList.add('complete')
+                        textElement.textContent = ''
+                        result.result.forEach(x => {
+                            const wordElement = document.createElement('span')
+                            wordElement.textContent = x.word
+                            wordElement.classList.add('word')
+                            if (x.conf === 1.0) {
+                                wordElement.classList.add('confidence-high')
+                            } else if (x.conf > 0.9) {
+                                wordElement.classList.add('confidence-medium')
+                            } else {
+                                wordElement.classList.add('confidence-low')
+                            }
+                            textElement.appendChild(wordElement)
+                        })
                     }
                     this.dispatchEvent(new CustomEvent('kaldi-recognizer-result', result))
                 }
@@ -377,13 +396,22 @@ var VoskJS = (function() {
             static template () {
                 return `
                     <style>
-                        #results, #partial {
-                            font-family: monospace;
+                        .confidence-medium {
+                            text-decoration: dotted underline;
+                        }
+                        .confidence-low {
+                            text-decoration: dotted underline;
+                            text-decoration-color: red;
+                        }
+                        .partial::after {
+                            content: "...";
+                        }
+                        .word::after {
+                            content: " ";
                         }
                     </style>
                     <button id="startStop">Start</button>
-                    <p id="partial"></p>
-                    <p id="results"></p>
+                    <span id="text"></span>
                 `
             }
         }
